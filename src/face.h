@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __FACE_H__
+#define __FACE_H__
+
+#include "freetypy.h"
+#include "constants.h"
+
+
+struct Memory_Buffer;
+
+
+struct Memory_Buffer {
+    void *mem;
+    struct Memory_Buffer *next;
+};
+
+
+typedef struct {
+    ftpy_Object base;
+    FT_Face x;
+    FT_StreamRec stream;
+    void *mem;
+    size_t mem_size;
+} Py_Face;
+
+
+int setup_Face(PyObject *m);
+
+
+extern ftpy_ConstantType Py_FT_FSTYPE_BitflagType;
+
+
+#endif

@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __GLYPH_METRICS_H__
+#define __GLYPH_METRICS_H__
+
+#include "freetypy.h"
+
+
+PyObject *
+Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner);
+
+
+int setup_Glyph_Metrics(PyObject *m);
+
+#endif

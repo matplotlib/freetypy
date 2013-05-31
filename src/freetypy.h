@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __PYTYPE_H__
+#define __PYTYPE_H__
+
+#include <Python.h>
+#include "structmember.h"
+
+#if PY_MAJOR_VERSION >= 3
+#define PY3K 1
+#else
+#define PY3K 0
+#ifndef Py_TYPE
+  #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#endif
+#endif
+
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+
+FT_Library get_ft_library();
+
+
+#include "freetypy_error.h"
+#include "pyutil.h"
+
+#endif

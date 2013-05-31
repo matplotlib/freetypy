@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __SIZE_H__
+#define __SIZE_H__
+
+#include "freetypy.h"
+
+typedef struct {
+    ftpy_Object base;
+    FT_Size x;
+} Py_Size;
+
+
+PyObject *
+Py_Size_cnew(FT_Size size, PyObject *owner);
+
+
+int setup_Size(PyObject *m);
+
+#endif

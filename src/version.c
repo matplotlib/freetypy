@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#include "version.h"
+
+
+int setup_version(PyObject *m)
+{
+    PyObject *__version__ = Py_BuildValue(
+        "iii", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH);
+
+    return (
+            PyModule_AddObject(m, "__freetype_version__", __version__) ||
+            PyModule_AddStringConstant(m, "__version__", "0.1")
+            );
+}

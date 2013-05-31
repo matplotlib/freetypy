@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __TRUETYPE_H__
+#define __TRUETYPE_H__
+
+#include "freetypy.h"
+#include "constants.h"
+
+
+extern ftpy_ConstantType Py_TT_PLATFORM_ConstantType;
+extern ftpy_ConstantType Py_TT_APPLE_ID_ConstantType;
+extern ftpy_ConstantType Py_TT_ISO_ID_ConstantType;
+extern ftpy_ConstantType Py_TT_MAC_ID_ConstantType;
+extern ftpy_ConstantType Py_TT_MS_ID_ConstantType;
+extern ftpy_ConstantType Py_TT_ADOBE_ID_ConstantType;
+extern ftpy_ConstantType Py_TT_MAC_LANGID_ConstantType;
+extern ftpy_ConstantType Py_TT_MS_LANGID_ConstantType;
+extern ftpy_ConstantType Py_TT_NAME_ID_ConstantType;
+
+
+int setup_TrueType(PyObject *m);
+
+#endif

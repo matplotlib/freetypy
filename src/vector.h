@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __VECTOR_H__
+#define __VECTOR_H__
+
+#include "freetypy.h"
+
+
+PyObject *
+Py_Vector_cnew(FT_Vector *Vector, double scale);
+
+
+int setup_Vector(PyObject *m);
+
+#endif

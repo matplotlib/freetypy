@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __FILE_H__
+#define __FILE_H__
+
+#include "freetypy.h"
+
+#include <stdio.h>
+
+FILE* ftpy_PyFile_Dup(PyObject *file, char *mode);
+int ftpy_PyFile_DupClose(PyObject *file, FILE* handle);
+int ftpy_PyFile_Check(PyObject *file);
+PyObject* ftpy_PyFile_OpenFile(PyObject *filename, const char *mode);
+int ftpy_PyFile_CloseFile(PyObject *file);
+
+#endif

@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __GLYPH_H__
+#define __GLYPH_H__
+
+#include "freetypy.h"
+
+#include FT_GLYPH_H
+
+
+typedef struct {
+    ftpy_Object base;
+    FT_GlyphSlot x;
+    FT_Glyph glyph;
+} Py_Glyph;
+
+
+PyObject *
+Py_Glyph_cnew(FT_GlyphSlot glyph, PyObject *owner);
+
+
+int setup_Glyph(PyObject *m);
+
+#endif

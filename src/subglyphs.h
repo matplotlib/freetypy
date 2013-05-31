@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __SUBGLYPHS_H__
+#define __SUBGLYPHS_H__
+
+#include "freetypy.h"
+#include "glyph.h"
+
+
+PyObject *
+Py_SubGlyphs_cnew(Py_Glyph *glyph);
+
+
+int setup_SubGlyphs(PyObject *m);
+
+#endif

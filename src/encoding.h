@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __ENCODING_H__
+#define __ENCODING_H__
+
+#include "freetypy.h"
+
+
+/* Given a FreeType encoding, decodes a char * into a Python Unicode
+ * object.
+ */
+PyObject *ftpy_decode(
+        unsigned short platform_id, unsigned short encoding_id,
+        const char *string, Py_ssize_t string_len);
+
+
+int ftpy_get_charcode_from_unicode(
+        PyObject *py_unicode, unsigned short platform_id,
+        unsigned short encoding_id, unsigned long *charcode);
+
+
+int ftpy_is_unicode_encoding(
+        unsigned short platform_id, unsigned short encoding_id);
+
+
+#endif

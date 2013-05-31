@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2013, Michael Droettboom
 All rights reserved.
 
@@ -24,3 +25,56 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
+*/
+
+#ifndef __CONSTANTS_H__
+#define __CONSTANTS_H__
+
+#include "freetypy.h"
+
+
+#define DEF_CONST(name, category) {#name, category ## _ ## name}
+
+
+typedef struct
+{
+    PyTypeObject type;
+    PyTypeObject *namespace;
+} ftpy_ConstantType;
+
+
+typedef ftpy_ConstantType ftpy_BitflagType;
+
+
+typedef struct
+{
+    char *name;
+    long value;
+} constant_def;
+
+
+int define_constant_namespace(
+    PyObject *m,
+    PyTypeObject *namespace_type,
+    ftpy_ConstantType *constant_type,
+    const char *qualified_name,
+    const char *doc,
+    const constant_def *constants);
+
+
+int define_bitflag_namespace(
+    PyObject *m,
+    PyTypeObject *namespace_type,
+    ftpy_ConstantType *constant_type,
+    const char *qualified_name,
+    const char *doc,
+    const constant_def *constants);
+
+
+PyObject *Py_Constant_cnew(ftpy_ConstantType *type, unsigned long value);
+
+
+int setup_constants(PyObject *m);
+
+
+#endif
