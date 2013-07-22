@@ -50,17 +50,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Displays a character using different rendering modes.')
-    parser.add_argument(
-        '-c', type=str, default='S',
-        help='The character to display')
-    args = parser.parse_args()
-    char = args.c
-    if isinstance(char, bytes):
-        char = char.decode('utf-8')
-
+def rendering_modes(char):
     face = ft.Face(ft_util.vera_path())
     face.select_charmap(ft.ENCODING.UNICODE)
     face.set_char_size(48)
@@ -88,3 +78,17 @@ if __name__ == '__main__':
         plt.xlabel(repr(bitmap.pixel_mode))
 
     plt.show()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Displays a character using different rendering modes.')
+    parser.add_argument(
+        '-c', type=str, default='S',
+        help='The character to display')
+    args = parser.parse_args()
+    char = args.c
+    if isinstance(char, bytes):
+        char = char.decode('utf-8')
+
+    rendering_modes(char)

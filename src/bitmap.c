@@ -37,6 +37,7 @@ either expressed or implied, of the FreeBSD Project.
 #define MAKE_BITMAP_GETTER(name, convert_func, member)  \
     MAKE_GETTER(Py_Bitmap, name, convert_func, member);
 #define BITMAP_METHOD(name) DEF_METHOD(name, Bitmap)
+#define BITMAP_METHOD_NOARGS(name) DEF_METHOD_NOARGS(name, Bitmap)
 
 /* TODO: Provide a way to get at the bitmap data without Numpy */
 
@@ -195,8 +196,15 @@ Py_Bitmap_convert(Py_Bitmap* self, PyObject* args, PyObject* kwds) {
 };
 
 
+static PyObject*
+Py_Bitmap_to_list(Py_Bitmap* self) {
+    return ftpy_PyBuffer_ToList(self);
+};
+
+
 static PyMethodDef Py_Bitmap_methods[] = {
     BITMAP_METHOD(convert),
+    BITMAP_METHOD_NOARGS(to_list),
     {NULL}  /* Sentinel */
 };
 

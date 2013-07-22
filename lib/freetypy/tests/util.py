@@ -40,7 +40,7 @@ import os
 from nose.tools import raises
 
 
-from ..util import vera_path
+from ..util import vera_path, draw_glyph_to_screen
 
 
 try:
@@ -54,7 +54,8 @@ except ImportError:
         pass
 
 
-__all__ = ['skip_if', 'vera_path', 'draw_to_screen', 'make_assert', 'raises']
+__all__ = ['skip_if', 'vera_path', 'make_assert', 'raises',
+           'draw_glyph_to_screen']
 
 
 def skip_if(predicate):
@@ -71,18 +72,6 @@ def skip_if(predicate):
             return test
 
     return wrapper
-
-
-def draw_to_screen(a):
-    # shades = ' \u2591\u2592\u2593\u2588'
-    shades = ' .+*#'
-
-    for row in a:
-        for col in row:
-            col = int(float(col) / 255. * 4.)
-            c = shades[col]
-            print(c, end='')
-        print()
 
 
 def make_assert(obj, exclude=set()):

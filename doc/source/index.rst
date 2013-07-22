@@ -6,112 +6,23 @@
 freetypy documentation
 ======================
 
-.. currentmodule:: freetypy
+`freetypy` is a general-purpose Python wrapper to `freetype
+<http://www.freetype.org>`_ with a goal to be fast and flexible as
+possible.
 
-API documentation
-=================
+It is open source under the BSD license.
 
-Face
-----
+It is developed as part of the `matplotlib
+<http://www.matplotlib.org>`_ project, though it is an independent
+library that intends to be of general use outside of matplotlib as
+well.
 
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
+.. toctree::
+   :maxdepth: 1
 
-   Face
-   Size
-   Size_Metrics
-   FACE_FLAG
-   STYLE_FLAG
-   LOAD
-   SIZE_REQUEST_TYPE
-   FSTYPE
+   intro.rst
+   api.rst
 
-Glyph
------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   Glyph
-   Glyph_Metrics
-   GLYPH_BBOX
-   GLYPH_FORMAT
-   SubGlyph
-   SUBGLYPH_FLAG
-
-Bitmap
-------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   Bitmap
-   Bitmap_Size
-   PIXEL_MODE
-   RENDER_MODE
-
-Outline
--------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   Outline
-   OUTLINE
-   ORIENTATION
-
-CharMap
--------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   CharMap
-   ENCODING
-
-TrueType information
---------------------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   SfntName
-   TT_Header
-   TT_HoriHeader
-   TT_VertHeader
-   TT_OS2
-   TT_Pclt
-   TT_Postscript
-   TT_PLATFORM
-   TT_APPLE_ID
-   TT_MAC_ID
-   TT_MAC_LANGID
-   TT_MS_ID
-   TT_MS_LANGID
-   TT_ADOBE_ID
-   TT_NAME_ID
-   TT_MAC_STYLE
-   TT_HEADER_FLAGS
-   TT_WIDTH_CLASS
-   TT_WEIGHT_CLASS
-   TT_FS_SELECTION
-
-Basic Types
------------
-
-.. autosummary::
-   :toctree: _generated
-   :template: autosummary/class.rst
-
-   BBox
-   Matrix
-   Vector
 
 Indices and tables
 ==================

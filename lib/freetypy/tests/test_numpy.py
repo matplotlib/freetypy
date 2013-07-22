@@ -53,7 +53,6 @@ def test_glyph():
     glyph = face.load_char(65, ft.LOAD.RENDER)
 
     array = np.array(glyph.bitmap)
-    draw_to_screen(array)
     assert array.shape == (36, 33)
     assert array.dtype == np.uint8
 

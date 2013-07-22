@@ -37,8 +37,23 @@ from __future__ import print_function, unicode_literals, absolute_import
 import os
 
 
-__all__ = ['vera_path']
+__all__ = ['vera_path', 'draw_glyph_to_screen']
 
 
 def vera_path():
     return os.path.join(os.path.dirname(__file__), 'data', 'Vera.ttf')
+
+
+def draw_glyph_to_screen(a):
+    """
+    Draws a single glyph, as either a nested list or a Numpy array, to
+    the screen.
+    """
+    shades = ' .+*#'
+
+    for row in a:
+        for col in row:
+            col = int(float(col) / 255. * 4.)
+            c = shades[col]
+            print(c, end='')
+        print()

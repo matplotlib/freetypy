@@ -34,3 +34,5 @@
 from . import codecs
 
 from ._freetypy import *
+
+from . import util

@@ -180,6 +180,82 @@ PyObject *ftpy_PyDateTime_FromTTDateTime(long *date)
 }
 
 
+PyObject *ftpy_PyBuffer_ToList(PyObject *obj)
+{
+    Py_buffer view;
+    PyObject *list[3];
+    PyObject *val;
+    PyObject *result = NULL;
+    unsigned char *row;
+    unsigned char *col;
+    unsigned char *plane;
+    Py_ssize_t i;
+    Py_ssize_t j;
+    Py_ssize_t k;
+
+    if (PyObject_GetBuffer(obj, &view, 0)) {
+        return NULL;
+    }
+
+    list[0] = PyList_New(view.shape[0]);
+    if (list[0] == NULL) {
+        goto exit;
+    }
+
+    if (view.ndim == 2) {
+        row = view.buf;
+        for (i = 0; i < view.shape[0]; ++i, row += view.strides[0]) {
+            list[1] = PyList_New(view.shape[1]);
+            if (list[1] == NULL) {
+                goto exit;
+            }
+            for (j = 0, col = row; j < view.shape[1]; ++j, col += view.strides[1]) {
+                val = PyLong_FromUnsignedLong(*col);
+                if (val == NULL) {
+                    Py_DECREF(list[1]);
+                    goto exit;
+                }
+                PyList_SET_ITEM(list[1], j, val);
+            }
+            PyList_SET_ITEM(list[0], i, list[1]);
+        }
+    } else if (view.ndim == 3) {
+        row = view.buf;
+        for (i = 0; i < view.shape[0]; ++i, row += view.strides[0]) {
+            list[1] = PyList_New(view.shape[1]);
+            if (list[1] == NULL) {
+                goto exit;
+            }
+            for (j = 0, col = row; j < view.shape[1]; ++j, col += view.strides[1]) {
+                list[2] = PyList_New(view.shape[2]);
+                if (list[2] == NULL) {
+                    goto exit;
+                }
+                for (k = 0, plane = col; k < view.shape[2]; ++k, plane += view.strides[2]) {
+                    val = PyLong_FromUnsignedLong(*plane);
+                    if (val == NULL) {
+                        Py_DECREF(list[1]);
+                        Py_DECREF(list[2]);
+                        goto exit;
+                    }
+                    PyList_SET_ITEM(list[2], k, val);
+                }
+                PyList_SET_ITEM(list[1], j, list[2]);
+            }
+            PyList_SET_ITEM(list[0], i, list[1]);
+        }
+    }
+
+    result = list[0];
+    Py_INCREF(result);
+
+ exit:
+    Py_XDECREF(list[0]);
+
+    return result;
+}
+
+
 int setup_pyutil(PyObject *m)
 {
     PyDateTime_IMPORT;

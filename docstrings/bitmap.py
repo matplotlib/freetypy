@@ -100,6 +100,10 @@ Bitmap_rows = """
 The number of bitmap rows.
 """
 
+Bitmap_to_list = """
+|freetypy| Convert the bitmap to a nested list.
+"""
+
 Bitmap_width = """
 The number of pixels in bitmap row.
 """
