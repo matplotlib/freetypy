@@ -51,21 +51,34 @@ glyph extends to the left of the origin.
 
 `BBox` also works as a Python sequence, so it is easy to do::
 
-    xmin, xmax, ymin, ymax = bbox
+    xmin, ymin, xmax, ymax = bbox
 """
 
-BBox_xMax = """
+BBox_depth = """
+The depth of the bounding box beneath the baseline.  This is an alias
+for `yMin`.
+"""
+
+BBox_height = """
+The height of the bounding box (``yMax - yMin``).
+"""
+
+BBox_width = """
+The width of the bounding box (``xMax - xMin``).
+"""
+
+BBox_x_max = """
 The horizontal maximum (right-most).
 """
 
-BBox_xMin = """
+BBox_x_min = """
 The horizontal minimum (left-most).
 """
 
-BBox_yMax = """
+BBox_y_max = """
 The vertical maximum (top-most).
 """
 
-BBox_yMin = """
+BBox_y_min = """
 The vertical minimum (bottom-most).
 """

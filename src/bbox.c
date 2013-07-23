@@ -31,6 +31,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "doc/bbox.h"
 
 #define BBOX_GETTER(name, type) GETTER(name, type, FT_BBoxRec, Py_BBox);
+#define DEF_BBOX_GETTER(name) DEF_GETTER(name, doc_BBox_ ## name)
 
 
 /****************************************************************************
@@ -96,15 +97,45 @@ Py_BBox_init(Py_BBox *self, PyObject *args, PyObject *kwds)
 
 
 /****************************************************************************
+ Get/Set
+*/
+
+
+static PyObject *depth_get(Py_BBox *self, PyObject *closure)
+{
+    return PyFloat_FromDouble(self->yMin);
+}
+
+
+static PyObject *height_get(Py_BBox *self, PyObject *closure)
+{
+    return PyFloat_FromDouble(self->yMax - self->yMin);
+}
+
+
+static PyObject *width_get(Py_BBox *self, PyObject *closure)
+{
+    return PyFloat_FromDouble(self->xMax - self->xMin);
+}
+
+
+static PyGetSetDef Py_BBox_getset[] = {
+    DEF_BBOX_GETTER(depth),
+    DEF_BBOX_GETTER(height),
+    DEF_BBOX_GETTER(width),
+};
+
+
+/****************************************************************************
  Members
 */
 
 
 static PyMemberDef Py_BBox_members[] = {
-    {"xMin", T_DOUBLE, offsetof(Py_BBox, xMin), READONLY, doc_BBox_xMin},
-    {"xMax", T_DOUBLE, offsetof(Py_BBox, xMax), READONLY, doc_BBox_xMax},
-    {"yMin", T_DOUBLE, offsetof(Py_BBox, yMin), READONLY, doc_BBox_yMin},
-    {"yMax", T_DOUBLE, offsetof(Py_BBox, yMax), READONLY, doc_BBox_yMax},
+    {"x_min", T_DOUBLE, offsetof(Py_BBox, xMin), READONLY, doc_BBox_x_min},
+    {"x_max", T_DOUBLE, offsetof(Py_BBox, xMax), READONLY, doc_BBox_x_max},
+    {"y_min", T_DOUBLE, offsetof(Py_BBox, yMin), READONLY, doc_BBox_y_min},
+    {"y_max", T_DOUBLE, offsetof(Py_BBox, yMax), READONLY, doc_BBox_y_max},
     {NULL}  /* Sentinel */
 };
 
@@ -125,9 +156,9 @@ static PyObject *Py_BBox_getitem(Py_BBox *self, Py_ssize_t i)
     if (i == 0) {
         return PyFloat_FromDouble(self->xMin);
     } else if (i == 1) {
-        return PyFloat_FromDouble(self->xMax);
-    } else if (i == 2) {
         return PyFloat_FromDouble(self->yMin);
+    } else if (i == 2) {
+        return PyFloat_FromDouble(self->xMax);
     } else if (i == 3) {
         return PyFloat_FromDouble(self->yMax);
     }
@@ -188,6 +219,7 @@ int setup_BBox(PyObject *m)
         .tp_repr = Py_BBox_repr,
         .tp_doc = doc_BBox__init__,
         .tp_members = Py_BBox_members,
+        .tp_getset = Py_BBox_getset,
         .tp_init = (initproc)Py_BBox_init,
         .tp_new = Py_BBox_new
     };

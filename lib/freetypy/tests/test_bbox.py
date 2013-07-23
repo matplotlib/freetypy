@@ -41,12 +41,12 @@ def test_bbox():
     face = ft.Face(vera_path())
 
     bbox = face.bbox
-    assert bbox.xMin == -375.0
-    assert bbox.xMax == 2636.0
-    assert bbox.yMin == -483.0
-    assert bbox.yMax == 1901.0
-    xMin, xMax, yMin, yMax = face.bbox
-    assert bbox.xMin == -375.0
-    assert bbox.xMax == 2636.0
-    assert bbox.yMin == -483.0
-    assert bbox.yMax == 1901.0
+    assert bbox.x_min == -375.0
+    assert bbox.x_max == 2636.0
+    assert bbox.y_min == -483.0
+    assert bbox.y_max == 1901.0
+    x_min, x_max, y_min, y_max = face.bbox
+    assert bbox.x_min == -375.0
+    assert bbox.x_max == 2636.0
+    assert bbox.y_min == -483.0
+    assert bbox.y_max == 1901.0
