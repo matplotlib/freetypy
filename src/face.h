@@ -34,15 +34,6 @@ either expressed or implied, of the FreeBSD Project.
 #include "constants.h"
 
 
-struct Memory_Buffer;
-
-
-struct Memory_Buffer {
-    void *mem;
-    struct Memory_Buffer *next;
-};
-
-
 typedef struct {
     ftpy_Object base;
     FT_Face x;
