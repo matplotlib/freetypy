@@ -171,6 +171,22 @@ created at index 0 and whatever was there will be moved to the last
 index -- Type 42 fonts are considered invalid under this condition.
 """
 
+Face_get_char_name = """
+|freetypy| Returns the glyph name of the given unicode code point.
+Unlike `get_glyph_name`, this function will always return something,
+even if the font contains no glyph names.
+
+Parameters
+----------
+charcode : int
+    The character code.
+
+Returns
+-------
+glyph_name : unicode
+    The name of the associated glyph.
+"""
+
 Face_get_char_variant_index = """
 Return the glyph index of a given character code as modified by the
 variation selector.

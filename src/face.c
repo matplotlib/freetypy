@@ -543,6 +543,32 @@ Py_Face_get_char_index_unicode(Py_Face *self, PyObject *args, PyObject *kwds)
 
 
 static PyObject*
+Py_Face_get_char_name(Py_Face *self, PyObject *args, PyObject *kwds)
+{
+    unsigned long charcode;
+    unsigned int glyph_index;
+    char glyph_name[80];
+
+    static char *kwlist[] = {"charcode", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwds, "k:get_char_name_unicode", kwlist,
+            &charcode)) {
+        return NULL;
+    }
+
+    glyph_index = FT_Get_Char_Index(self->x, charcode);
+
+    if (glyph_index != 0 &&
+        !FT_Get_Glyph_Name(self->x, glyph_index, glyph_name, 80)) {
+        return PyUnicode_FromString(glyph_name);
+    }
+
+    return PyUnicode_FromFormat("uni%08x", charcode);
+}
+
+
+static PyObject*
 Py_Face_get_char_variant_index(Py_Face *self, PyObject *args, PyObject *kwds)
 {
     unsigned long charcode;
@@ -1003,8 +1029,9 @@ static PyMethodDef Py_Face_methods[] = {
     FACE_METHOD(attach),
     FACE_METHOD(get_char_index),
     FACE_METHOD(get_char_index_unicode),
-    FACE_METHOD_NOARGS(get_chars),
+    FACE_METHOD(get_char_name),
     FACE_METHOD(get_char_variant_index),
+    FACE_METHOD_NOARGS(get_chars),
     FACE_METHOD_NOARGS(get_fstype_flags),
     FACE_METHOD(get_glyph_name),
     FACE_METHOD(get_kerning),
