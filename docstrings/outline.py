@@ -112,6 +112,10 @@ callback_object : object
 
         - `cubic_to(control1, control2, endpoint)`
 
+    |freetypy| If `callback_object` does not have a `conic_to` method,
+    conic curves will be converted to cubic ones and `cubic_to` will
+    be called.
+
 shift : int, optional
     The shift that is applied to coordinates before they are sent to
     the emitter.

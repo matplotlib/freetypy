@@ -53,44 +53,80 @@ ftpy_BitflagType Py_FT_OUTLINE_BitflagType;
  Outline decompose helper functions
 */
 
+
+typedef struct {
+    PyObject *callback;
+    int has_conic_to;
+    double last_x;
+    double last_y;
+} DecomposeData;
+
+
 static int
 Py_Outline_moveto_func(const FT_Vector *to, void *user)
 {
-    PyObject *obj = (PyObject *)user;
+    DecomposeData *data = (DecomposeData *)user;
+    PyObject *obj = data->callback;
     double x = to->x;
     double y = to->y;
 
     if (PyObject_CallMethod(obj, "move_to", "((dd))", x, y) == NULL) {
         return 0x6;
     }
+
+    data->last_x = x;
+    data->last_y = y;
+
     return 0;
 }
 
 static int
 Py_Outline_lineto_func(const FT_Vector *to, void *user)
 {
-    PyObject *obj = (PyObject *)user;
+    DecomposeData *data = (DecomposeData *)user;
+    PyObject *obj = data->callback;
     double x = to->x;
     double y = to->y;
 
     if (PyObject_CallMethod(obj, "line_to", "((dd))", x, y) == NULL) {
         return 0x6;
     }
+
+    data->last_x = x;
+    data->last_y = y;
+
     return 0;
 }
 
 static int
 Py_Outline_conicto_func(const FT_Vector *control, const FT_Vector *to, void *user)
 {
-    PyObject *obj = (PyObject *)user;
+    DecomposeData *data = (DecomposeData *)user;
+    PyObject *obj = data->callback;
     double xc = control->x;
     double yc = control->y;
     double x = to->x;
     double y = to->y;
+    double xc0, yc0, xc1, yc1;
 
-    if (PyObject_CallMethod(obj, "conic_to", "((dd)(dd))", xc, yc, x, y) == NULL) {
-        return 0x6;
+    if (data->has_conic_to) {
+        if (PyObject_CallMethod(obj, "conic_to", "((dd)(dd))", xc, yc, x, y) == NULL) {
+            return 0x6;
+        }
+    } else {
+        xc0 = (2.0 * xc + data->last_x) / 3.0;
+        yc0 = (2.0 * yc + data->last_y) / 3.0;
+        xc1 = (x + 2.0 * xc) / 3.0;
+        yc1 = (y + 2.0 * yc) / 3.0;
+        if (PyObject_CallMethod(obj, "cubic_to", "((dd)(dd)(dd))",
+                xc0, yc0, xc1, yc1, x, y) == NULL) {
+            return 0x6;
+        }
     }
+
+    data->last_x = x;
+    data->last_y = y;
+
     return 0;
 }
 
@@ -99,7 +135,8 @@ Py_Outline_cubicto_func(
     const FT_Vector *control1, const FT_Vector *control2,
     const FT_Vector *to, void *user)
 {
-    PyObject *obj = (PyObject *)user;
+    DecomposeData *data = (DecomposeData *)user;
+    PyObject *obj = data->callback;
     double xc1 = control1->x;
     double yc1 = control1->y;
     double xc2 = control2->x;
@@ -111,6 +148,10 @@ Py_Outline_cubicto_func(
             xc1, yc1, xc2, yc2, x, y) == NULL) {
         return 0x6;
     }
+
+    data->last_x = x;
+    data->last_y = y;
+
     return 0;
 }
 
@@ -250,6 +291,7 @@ Py_Outline_decompose(Py_Outline* self, PyObject* args, PyObject* kwds)
     /* TODO: Also implement this as an iterator */
     /* TODO: delta is in some sort of fixed value, not sure what */
 
+    DecomposeData data;
     PyObject *obj;
     FT_Outline_Funcs funcs = {
         .move_to = Py_Outline_moveto_func,
@@ -282,12 +324,12 @@ Py_Outline_decompose(Py_Outline* self, PyObject* args, PyObject* kwds)
         PyErr_SetString(PyExc_AttributeError, "obj has no cubic_to method");
         return NULL;
     }
-    if (!PyObject_HasAttrString(obj, "conic_to")) {
-        PyErr_SetString(PyExc_AttributeError, "obj has no conic_to method");
-        return NULL;
-    }
+    data.has_conic_to = PyObject_HasAttrString(obj, "conic_to");
+    data.callback = obj;
+    data.last_x = 0.0;
+    data.last_y = 0.0;
 
-    error = FT_Outline_Decompose(&self->x, &funcs, obj);
+    error = FT_Outline_Decompose(&self->x, &funcs, &data);
     if (PyErr_Occurred()) {
         return NULL;
     } else if (ftpy_exc(error)) {
