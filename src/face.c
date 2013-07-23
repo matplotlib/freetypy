@@ -1035,7 +1035,7 @@ Py_Face_repr(Py_Face *self)
 */
 
 
-static PyTypeObject Py_Face_Type;
+PyTypeObject Py_Face_Type;
 
 
 static PyTypeObject Py_FT_FACE_FLAG_Type;

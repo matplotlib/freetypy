@@ -39,6 +39,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "face.h"
 #include "glyph.h"
 #include "glyph_metrics.h"
+#include "layout.h"
 #include "matrix.h"
 #include "outline.h"
 #include "sfntname.h"
@@ -146,6 +147,7 @@ struct freetypy_module_state {
         setup_Face(m) ||
         setup_Glyph(m) ||
         setup_Glyph_Metrics(m) ||
+        setup_Layout(m) ||
         setup_Matrix(m) ||
         setup_Outline(m) ||
         setup_SfntName(m) ||

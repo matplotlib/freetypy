@@ -31,6 +31,19 @@ Face
    SIZE_REQUEST_TYPE
    FSTYPE
 
+Layout
+------
+
+|freetypy| Freetypy includes a very basic layout algorithm for
+left-to-right text.  For more serious usage, one should use a real
+layout engine, such as `Pango <http://www.pango.org/>`_.
+
+.. autosummary::
+   :toctree: _generated
+   :template: autosummary/class.rst
+
+   Layout
+
 Glyph
 -----
 
@@ -86,6 +99,7 @@ TrueType information
    :template: autosummary/class.rst
 
    SfntName
+   SfntNames
    TT_Header
    TT_HoriHeader
    TT_VertHeader

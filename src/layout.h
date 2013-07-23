@@ -27,38 +27,20 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
-#ifndef __FACE_H__
-#define __FACE_H__
+#ifndef __LAYOUT_H__
+#define __LAYOUT_H__
 
 #include "freetypy.h"
-#include "constants.h"
-
-
-struct Memory_Buffer;
-
-
-struct Memory_Buffer {
-    void *mem;
-    struct Memory_Buffer *next;
-};
+#include "simple_layout.h"
 
 
 typedef struct {
     ftpy_Object base;
-    FT_Face x;
-    FT_StreamRec stream;
-    void *mem;
-    size_t mem_size;
-} Py_Face;
+    ftpy_Layout x;
+} Py_Layout;
 
 
-int setup_Face(PyObject *m);
-
-
-extern PyTypeObject Py_Face_Type;
-
-
-extern ftpy_ConstantType Py_FT_FSTYPE_BitflagType;
+int setup_Layout(PyObject *m);
 
 
 #endif
