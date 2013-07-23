@@ -118,6 +118,11 @@ specific interface to access them. Can be `None` (e.g., in fonts
 embedded in a PDF file).
 """
 
+Face_filename = """
+|freetypy| The argument used to initialize the font.  Is usually a
+filename, but not always.
+"""
+
 Face_get_char_index_unicode = """
 |freetypy| Return the glyph index of a given Unicode character.
 

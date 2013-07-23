@@ -49,6 +49,7 @@ typedef struct {
     FT_StreamRec stream;
     void *mem;
     size_t mem_size;
+    PyObject *filename;
 } Py_Face;
 
 

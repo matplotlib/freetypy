@@ -219,6 +219,7 @@ static void
 Py_Face_dealloc(Py_Face* self)
 {
     FT_Done_Face(self->x);
+    Py_XDECREF(self->filename);
     free(self->mem);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -238,6 +239,7 @@ Py_Face_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     memset(&self->stream, 0, sizeof(FT_StreamRec));
     self->mem = NULL;
     self->mem_size = 0;
+    self->filename = NULL;
     return (PyObject *)self;
 }
 
@@ -267,6 +269,9 @@ Py_Face_init(Py_Face *self, PyObject *args, PyObject *kwds)
                 get_ft_library(), &open_args, face_index, &self->x))) {
         goto exit;
     }
+
+    Py_INCREF(py_file_arg);
+    self->filename = py_file_arg;
 
     result = 0;
 
@@ -409,6 +414,13 @@ MAKE_FACE_GETTER(is_sfnt, PyBool_FromLong, FT_IS_SFNT(self->x))
 MAKE_FACE_GETTER(is_fixed_width, PyBool_FromLong, FT_IS_FIXED_WIDTH(self->x))
 
 
+static PyObject *filename_get(Py_Face *self, PyObject *closure)
+{
+    Py_INCREF(self->filename);
+    return self->filename;
+}
+
+
 static PyGetSetDef Py_Face_getset[] = {
     DEF_FACE_GETTER(num_faces),
     DEF_FACE_GETTER(face_index),
@@ -438,6 +450,7 @@ static PyGetSetDef Py_Face_getset[] = {
     DEF_FACE_GETTER(is_scalable),
     DEF_FACE_GETTER(is_sfnt),
     DEF_FACE_GETTER(is_fixed_width),
+    DEF_FACE_GETTER(filename),
     {NULL}
 };
 
