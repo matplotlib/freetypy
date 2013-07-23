@@ -33,9 +33,6 @@ import freetypy as ft
 from .util import *
 
 
-import numpy as np
-
-
 def test_outline():
     face = ft.Face(vera_path())
     face.set_charmap(0)
