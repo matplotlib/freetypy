@@ -100,7 +100,7 @@ PyObject *ftpy_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 
 #define DEF_METHOD_NOARGS(name, type) \
-    { #name, (PyCFunction)Py_ ## type ## _ ## name, METH_VARARGS|METH_KEYWORDS, doc_ ## type ## _ ## name }
+    { #name, (PyCFunction)Py_ ## type ## _ ## name, METH_NOARGS, doc_ ## type ## _ ## name }
 
 
 #define TO_F26DOT6(v) ((FT_F26Dot6)((double)(v) * (double)(1 << 6)))
