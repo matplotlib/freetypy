@@ -48,6 +48,25 @@ ftpy_ConstantType Py_FT_ORIENTATION_ConstantType;
 ftpy_BitflagType Py_FT_OUTLINE_BitflagType;
 
 
+/****************************************************************************
+ Helper functions
+*/
+
+static inline void conic_to_cubic(
+    FT_Pos xi0, FT_Pos yi0,
+    FT_Pos xi1, FT_Pos yi1,
+    FT_Pos xi2, FT_Pos yi2,
+    FT_Pos *xo0, FT_Pos *yo0,
+    FT_Pos *xo1, FT_Pos *yo1,
+    FT_Pos *xo2, FT_Pos *yo2)
+{
+    *xo0 = (2 * xi1 + xi0) / 3;
+    *yo0 = (2 * yi1 + yi0) / 3;
+    *xo1 = (xi1 + 2 * xi2) / 3;
+    *yo1 = (yi1 + 2 * yi2) / 3;
+    *xo2 = xi2;
+    *yo2 = yi2;
+}
 
 /****************************************************************************
  Outline decompose helper functions
@@ -57,8 +76,8 @@ ftpy_BitflagType Py_FT_OUTLINE_BitflagType;
 typedef struct {
     PyObject *callback;
     int has_conic_to;
-    double last_x;
-    double last_y;
+    FT_Pos last_x;
+    FT_Pos last_y;
 } DecomposeData;
 
 
@@ -74,8 +93,8 @@ Py_Outline_moveto_func(const FT_Vector *to, void *user)
         return 0x6;
     }
 
-    data->last_x = x;
-    data->last_y = y;
+    data->last_x = to->x;
+    data->last_y = to->y;
 
     return 0;
 }
@@ -92,8 +111,8 @@ Py_Outline_lineto_func(const FT_Vector *to, void *user)
         return 0x6;
     }
 
-    data->last_x = x;
-    data->last_y = y;
+    data->last_x = to->x;
+    data->last_y = to->y;
 
     return 0;
 }
@@ -107,25 +126,26 @@ Py_Outline_conicto_func(const FT_Vector *control, const FT_Vector *to, void *use
     double yc = control->y;
     double x = to->x;
     double y = to->y;
-    double xc0, yc0, xc1, yc1;
+    FT_Pos xc0, yc0, xc1, yc1, xc2, yc2;
 
     if (data->has_conic_to) {
         if (PyObject_CallMethod(obj, "conic_to", "((dd)(dd))", xc, yc, x, y) == NULL) {
             return 0x6;
         }
     } else {
-        xc0 = (2.0 * xc + data->last_x) / 3.0;
-        yc0 = (2.0 * yc + data->last_y) / 3.0;
-        xc1 = (x + 2.0 * xc) / 3.0;
-        yc1 = (y + 2.0 * yc) / 3.0;
-        if (PyObject_CallMethod(obj, "cubic_to", "((dd)(dd)(dd))",
-                xc0, yc0, xc1, yc1, x, y) == NULL) {
+        conic_to_cubic(data->last_x, data->last_y, xc, yc, x, y,
+                       &xc0, &yc0, &xc1, &yc1, &xc2, &yc2);
+        if (PyObject_CallMethod(
+                obj, "cubic_to", "((dd)(dd)(dd))",
+                (double)xc0, (double)yc0,
+                (double)xc1, (double)yc1,
+                (double)xc2, (double)yc2) == NULL) {
             return 0x6;
         }
     }
 
-    data->last_x = x;
-    data->last_y = y;
+    data->last_x = to->x;
+    data->last_y = to->y;
 
     return 0;
 }
@@ -149,8 +169,177 @@ Py_Outline_cubicto_func(
         return 0x6;
     }
 
-    data->last_x = x;
-    data->last_y = y;
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+
+#define BUFFER_CHUNK_SIZE (1 << 16)
+
+
+typedef struct {
+    char *move_command;
+    char *line_command;
+    char *cubic_command;
+    char *conic_command;
+    int relative;
+    double last_x;
+    double last_y;
+    char *buffer;
+    size_t buffer_size;
+    size_t cursor;
+} DecomposeToStringData;
+
+
+static int
+expand_buffer(
+    DecomposeToStringData *data, size_t len)
+{
+    while (len + 2 + data->cursor > data->buffer_size) {
+        free(data->buffer);
+        data->buffer_size += BUFFER_CHUNK_SIZE;
+        data->buffer = PyMem_Malloc(data->buffer_size);
+        if (data->buffer == NULL) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
+static int
+append_command_string(
+    DecomposeToStringData *data, FT_Pos *points, size_t npoints,
+    char *command)
+{
+    size_t i;
+    size_t len;
+    char buf[64];
+
+    for (i = 0; i < npoints; ++i) {
+        PyOS_snprintf(buf, 64, "%ld", points[i]);
+
+        len = strlen(buf);
+        if (expand_buffer(data, len)) {
+            return -1;
+        }
+
+        strncpy(data->buffer + data->cursor, buf,
+                data->buffer_size - data->cursor);
+        data->cursor += len;
+
+        if (i < npoints - 1) {
+            data->buffer[data->cursor++] = ' ';
+        }
+
+        data->buffer[data->cursor] = 0;
+    }
+
+    len = strlen(command);
+    if (expand_buffer(data, len)) {
+        return -1;
+    }
+    strncpy(data->buffer + data->cursor, command,
+            data->buffer_size - data->cursor);
+    data->cursor += len;
+    data->buffer[data->cursor] = 0;
+
+    return 0;
+}
+
+
+static int
+Py_Outline_to_string_moveto_func(const FT_Vector *to, void *user)
+{
+    DecomposeToStringData *data = (DecomposeToStringData *)user;
+    FT_Pos p[2];
+
+    p[0] = to->x;
+    p[1] = to->y;
+
+    if (append_command_string(data, p, 2, data->move_command)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_string_lineto_func(const FT_Vector *to, void *user)
+{
+    DecomposeToStringData *data = (DecomposeToStringData *)user;
+    FT_Pos p[2];
+
+    p[0] = to->x;
+    p[1] = to->y;
+
+    if (append_command_string(data, p, 2, data->line_command)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_string_conicto_func(const FT_Vector *control, const FT_Vector *to, void *user)
+{
+    DecomposeToStringData *data = (DecomposeToStringData *)user;
+    FT_Pos p[6];
+
+    if (data->conic_command) {
+        p[0] = control->x;
+        p[1] = control->y;
+        p[2] = to->x;
+        p[3] = to->y;
+
+        if (append_command_string(data, p, 4, data->conic_command)) {
+            return 0x6;
+        }
+    } else {
+        conic_to_cubic(
+            data->last_x, data->last_y, control->x, control->y, to->x, to->y,
+            &p[0], &p[1], &p[2], &p[3], &p[4], &p[5]);
+        if (append_command_string(data, p, 6, data->cubic_command)) {
+            return 0x6;
+        }
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_string_cubicto_func(
+    const FT_Vector *control1, const FT_Vector *control2,
+    const FT_Vector *to, void *user)
+{
+    DecomposeToStringData *data = (DecomposeToStringData *)user;
+    FT_Pos p[6];
+
+    p[0] = control1->x;
+    p[1] = control1->y;
+    p[2] = control2->x;
+    p[3] = control2->y;
+    p[4] = to->x;
+    p[5] = to->y;
+
+    if (append_command_string(data, p, 6, data->cubic_command)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
 
     return 0;
 }
@@ -293,7 +482,7 @@ Py_Outline_decompose(Py_Outline* self, PyObject* args, PyObject* kwds)
 
     DecomposeData data;
     PyObject *obj;
-    FT_Outline_Funcs funcs = {
+    const FT_Outline_Funcs funcs = {
         .move_to = Py_Outline_moveto_func,
         .line_to = Py_Outline_lineto_func,
         .conic_to = Py_Outline_conicto_func,
@@ -326,8 +515,8 @@ Py_Outline_decompose(Py_Outline* self, PyObject* args, PyObject* kwds)
     }
     data.has_conic_to = PyObject_HasAttrString(obj, "conic_to");
     data.callback = obj;
-    data.last_x = 0.0;
-    data.last_y = 0.0;
+    data.last_x = 0;
+    data.last_y = 0;
 
     error = FT_Outline_Decompose(&self->x, &funcs, &data);
     if (PyErr_Occurred()) {
@@ -455,6 +644,65 @@ Py_Outline_transform(Py_Outline* self, PyObject* args, PyObject* kwds)
 
 
 static PyObject*
+Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
+{
+    PyObject *result = NULL;
+    DecomposeToStringData data;
+    const FT_Outline_Funcs funcs = {
+        .move_to = Py_Outline_to_string_moveto_func,
+        .line_to = Py_Outline_to_string_lineto_func,
+        .conic_to = Py_Outline_to_string_conicto_func,
+        .cubic_to = Py_Outline_to_string_cubicto_func,
+
+        .shift = 0,
+        .delta = 0
+    };
+    int error;
+
+    const char* keywords[] = {
+        "move_command", "line_command", "cubic_command", "conic_command",
+        "relative", NULL};
+
+    data.conic_command = NULL;
+    data.relative = 0;
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwds, "sss|si:to_string", (char **)keywords,
+            &data.move_command, &data.line_command,
+            &data.cubic_command, &data.conic_command,
+            &data.relative)) {
+        return NULL;
+    }
+
+    data.buffer = PyMem_Malloc(BUFFER_CHUNK_SIZE);
+    if (data.buffer == NULL) {
+        return NULL;
+    }
+    data.buffer_size = BUFFER_CHUNK_SIZE;
+    data.cursor = 0;
+    data.last_x = 0;
+    data.last_y = 0;
+
+    error = FT_Outline_Decompose(&self->x, &funcs, &data);
+    if (PyErr_Occurred()) {
+        goto exit;
+    } else if (ftpy_exc(error)) {
+        goto exit;
+    }
+
+    result = PyBytes_FromString(data.buffer);
+    if (result == NULL) {
+        goto exit;
+    }
+
+ exit:
+    PyMem_Free(data.buffer);
+
+    return result;
+}
+
+
+static PyObject*
 Py_Outline_translate(Py_Outline* self, PyObject* args, PyObject* kwds)
 {
     long xOffset;
@@ -488,6 +736,7 @@ static PyMethodDef Py_Outline_methods[] = {
     OUTLINE_METHOD_NOARGS(get_cbox),
     OUTLINE_METHOD_NOARGS(get_orientation),
     OUTLINE_METHOD_NOARGS(reverse),
+    OUTLINE_METHOD(to_string),
     OUTLINE_METHOD(transform),
     OUTLINE_METHOD(translate),
     {NULL}  /* Sentinel */

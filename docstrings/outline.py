@@ -259,6 +259,39 @@ It shouldn't be used by a normal client application, unless it knows
 what it is doing.
 """
 
+Outline_to_string = """
+|freetypy| Convert the outline to a text format string of commands.
+This function is flexible enough to create path commands for PDF,
+Postcript and SVG.
+
+Parameters
+----------
+move_command : bytes
+    The character or command to use for "move to" commands.
+
+line_command : bytes
+    The character or command to use for "line to" commands.
+
+cubic_command : bytes
+    The character or command to use for "cubic curve" commands.
+
+conic_command : bytes, optional
+    The character or command to use for "conic curve" commands.  If
+    one is not provided, conic curves will be implicitly converted to
+    cubic curves.
+
+Returns
+-------
+string : bytes
+    A text-based string of commands to render the character.
+
+Examples
+--------
+To generate a PDF-compatible path::
+
+    outline.to_string(" m ", " l ", " c ")
+"""
+
 Outline_transform = """
 Apply a simple 2x2 matrix to all of an outline's points. Useful for
 applying rotations, slanting, flipping, etc.
