@@ -456,18 +456,12 @@ static PyMethodDef Py_Outline_methods[] = {
  Ancillary buffers
 */
 
-typedef struct {
-    ftpy_Object base;
-    Py_ssize_t shape[2];
-    Py_ssize_t strides[2];
-} Py_Outline_Buffer;
-
 
 static PyObject *
 Py_Outline_Points_Buffer_cnew(PyObject *owner)
 {
-    Py_Outline_Buffer *self;
-    self = (Py_Outline_Buffer *)(&Py_Outline_Points_Buffer_Type)->tp_alloc(
+    ftpy_Buffer *self;
+    self = (ftpy_Buffer *)(&Py_Outline_Points_Buffer_Type)->tp_alloc(
         &Py_Outline_Points_Buffer_Type, 0);
     Py_INCREF(owner);
     self->base.owner = owner;
@@ -475,7 +469,7 @@ Py_Outline_Points_Buffer_cnew(PyObject *owner)
 }
 
 
-static int Py_Outline_Points_Buffer_get_buffer(Py_Outline_Buffer *self, Py_buffer *view, int flags)
+static int Py_Outline_Points_Buffer_get_buffer(ftpy_Buffer *self, Py_buffer *view, int flags)
 {
     FT_Outline *outline = &((Py_Outline *)self->base.owner)->x;
     size_t itemsize = sizeof(FT_Pos);
@@ -511,8 +505,8 @@ static PyBufferProcs Py_Outline_Points_Buffer_procs;
 static PyObject *
 Py_Outline_Tags_Buffer_cnew(PyObject *owner)
 {
-    Py_Outline_Buffer *self;
-    self = (Py_Outline_Buffer *)(&Py_Outline_Tags_Buffer_Type)->tp_alloc(
+    ftpy_Buffer *self;
+    self = (ftpy_Buffer *)(&Py_Outline_Tags_Buffer_Type)->tp_alloc(
         &Py_Outline_Tags_Buffer_Type, 0);
     Py_INCREF(owner);
     self->base.owner = owner;
@@ -520,7 +514,7 @@ Py_Outline_Tags_Buffer_cnew(PyObject *owner)
 }
 
 
-static int Py_Outline_Tags_Buffer_get_buffer(Py_Outline_Buffer *self, Py_buffer *view, int flags)
+static int Py_Outline_Tags_Buffer_get_buffer(ftpy_Buffer *self, Py_buffer *view, int flags)
 {
     FT_Outline *outline = &((Py_Outline *)self->base.owner)->x;
 
@@ -549,8 +543,8 @@ static PyBufferProcs Py_Outline_Tags_Buffer_procs;
 static PyObject *
 Py_Outline_Contours_Buffer_cnew(PyObject *owner)
 {
-    Py_Outline_Buffer *self;
-    self = (Py_Outline_Buffer *)(&Py_Outline_Contours_Buffer_Type)->tp_alloc(
+    ftpy_Buffer *self;
+    self = (ftpy_Buffer *)(&Py_Outline_Contours_Buffer_Type)->tp_alloc(
         &Py_Outline_Contours_Buffer_Type, 0);
     Py_INCREF(owner);
     self->base.owner = owner;
@@ -559,7 +553,7 @@ Py_Outline_Contours_Buffer_cnew(PyObject *owner)
 
 
 static int Py_Outline_Contours_Buffer_get_buffer(
-    Py_Outline_Buffer *self, Py_buffer *view, int flags)
+    ftpy_Buffer *self, Py_buffer *view, int flags)
 {
     FT_Outline *outline = &((Py_Outline *)self->base.owner)->x;
 
@@ -588,35 +582,6 @@ static PyBufferProcs Py_Outline_Contours_Buffer_procs;
 /****************************************************************************
  Setup
 */
-
-
-static int create_outline_buffer_type(
-    PyTypeObject *type,
-    const char *name,
-    const char *doc,
-    PyBufferProcs *buffer_procs,
-    getbufferproc get_buffer)
-{
-    memset(buffer_procs, 0, sizeof(PyBufferProcs));
-    buffer_procs->bf_getbuffer = get_buffer;
-
-    memset(type, 0, sizeof(PyTypeObject));
-    *type = (PyTypeObject) {
-        .tp_name = name,
-        .tp_basicsize = sizeof(Py_Outline_Buffer),
-        .tp_as_buffer = buffer_procs,
-        .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC
-        #if !PY3K
-        | Py_TPFLAGS_HAVE_NEWBUFFER
-        #endif
-        ,
-        .tp_doc = doc,
-    };
-
-    ftpy_setup_type(NULL, type);
-
-    return 0;
-}
 
 
 static PyTypeObject Py_FT_OUTLINE_Type;
@@ -663,7 +628,7 @@ int setup_Outline(PyObject *m)
 
     ftpy_setup_type(m, &Py_Outline_Type);
 
-    if (create_outline_buffer_type(
+    if (ftpy_setup_buffer_type(
             &Py_Outline_Points_Buffer_Type,
             "freetypy.Outline.PointsBuffer",
             doc_Outline_points,
@@ -672,7 +637,7 @@ int setup_Outline(PyObject *m)
         return -1;
     }
 
-    if (create_outline_buffer_type(
+    if (ftpy_setup_buffer_type(
             &Py_Outline_Tags_Buffer_Type,
             "freetypy.Outline.TagsBuffer",
             doc_Outline_tags,
@@ -681,7 +646,7 @@ int setup_Outline(PyObject *m)
         return -1;
     }
 
-    if (create_outline_buffer_type(
+    if (ftpy_setup_buffer_type(
             &Py_Outline_Contours_Buffer_Type,
             "freetypy.Outline.ContoursBuffer",
             doc_Outline_contours,

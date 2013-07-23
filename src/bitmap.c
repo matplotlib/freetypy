@@ -31,6 +31,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "doc/bitmap.h"
 
 #include "constants.h"
+#include "pyutil.h"
 
 #include FT_BITMAP_H
 
@@ -198,7 +199,7 @@ Py_Bitmap_convert(Py_Bitmap* self, PyObject* args, PyObject* kwds) {
 
 static PyObject*
 Py_Bitmap_to_list(Py_Bitmap* self) {
-    return ftpy_PyBuffer_ToList(self);
+    return ftpy_PyBuffer_ToList((PyObject *)self);
 };
 
 

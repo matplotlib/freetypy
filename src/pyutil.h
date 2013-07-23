@@ -42,6 +42,21 @@ typedef struct {
 int ftpy_setup_type(PyObject *m, PyTypeObject *type);
 
 
+typedef struct {
+    ftpy_Object base;
+    Py_ssize_t shape[2];
+    Py_ssize_t strides[2];
+} ftpy_Buffer;
+
+
+int ftpy_setup_buffer_type(
+    PyTypeObject *type,
+    const char *name,
+    const char *doc,
+    PyBufferProcs *buffer_procs,
+    getbufferproc get_buffer);
+
+
 int setup_pyutil(PyObject *m);
 
 
@@ -101,6 +116,9 @@ PyObject *ftpy_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 PyObject *ftpy_PyUnicode_FromStringOrNull(const char *val);
 #define ftpy_Py_Vector_FromVector(v) Py_Vector_cnew(v, 1.0)
 PyObject *ftpy_PyDateTime_FromTTDateTime(long *date);
+
+
+PyObject *ftpy_PyBuffer_ToList(PyObject *obj);
 
 
 #endif
