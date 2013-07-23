@@ -371,7 +371,8 @@ int ftpy_get_charcode_from_unicode(
         goto exit;
     }
 
-    if (PyUnicode_GetSize(py_unicode) != 1) {
+    if (PyUnicode_GetSize(py_unicode) < 1 ||
+        PyUnicode_GetSize(py_unicode) > 2) {
         PyErr_SetString(
             PyExc_ValueError,
             "Must be a single-character unicode string");
