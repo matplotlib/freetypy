@@ -163,11 +163,9 @@ autohinting is active. Zero otherwise.
 """
 
 Glyph_metrics = """
-The metrics of the last loaded glyph. The returned values depend on
-the last load flags (see the `Face.load_glyph` method) and can be
+The `GlyphMetrics` of the glyph. The returned values depend on the
+last load flags (see the `Face.load_glyph` method) and can be
 expressed either in 26.6 fractional pixels or font units.
-
-(TODO: return relative floating point values)
 
 Note that even when the glyph image is transformed, the metrics are
 not.

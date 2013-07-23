@@ -85,7 +85,7 @@ hinted fonts. See `Size_Metrics` for further discussion.
 """
 
 Face_charmap = """
-The current active charmap for this face.
+The current active `CharMap` for this face.
 """
 
 Face_charmaps = """
@@ -216,7 +216,7 @@ flags : int
 """
 
 Face_get_glyph_name = """
-Retrieve the ASCII name of the given glyph in a face.  The only works
+Retrieve the ASCII name of the given glyph in a face.  This only works
 for those faces where `has_ps_glyph_names` returns `True`.
 
 Parameters
@@ -641,7 +641,7 @@ the values in `Face.glyph.metrics`.
 """
 
 Face_sfnt_names = """
-Get a list of `SfntName` entries for the Face.
+Get a `SfntNames` list of `SfntName` entries for the Face.
 """
 
 Face_size = """
