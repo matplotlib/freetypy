@@ -40,8 +40,6 @@ either expressed or implied, of the FreeBSD Project.
 #define BITMAP_METHOD(name) DEF_METHOD(name, Bitmap)
 #define BITMAP_METHOD_NOARGS(name) DEF_METHOD_NOARGS(name, Bitmap)
 
-/* TODO: Provide a way to get at the bitmap data without Numpy */
-
 static ftpy_ConstantType Py_FT_PIXEL_MODE_ConstantType;
 
 
