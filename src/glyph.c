@@ -224,7 +224,7 @@ Py_Glyph_get_cbox(Py_Glyph* self, PyObject* args, PyObject* kwds) {
 
     if (bbox_mode == FT_GLYPH_BBOX_SUBPIXELS ||
         bbox_mode == FT_GLYPH_BBOX_GRIDFIT) {
-        scale = 64.0;
+        scale = 1.0 / 64.0;
     }
 
     return Py_BBox_cnew(&bbox, scale);
