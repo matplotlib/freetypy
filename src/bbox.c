@@ -109,7 +109,7 @@ static PyObject *depth_get(Py_BBox *self, PyObject *closure)
 
 static PyObject *height_get(Py_BBox *self, PyObject *closure)
 {
-    return PyFloat_FromDouble(self->yMax - self->yMin);
+    return PyFloat_FromDouble(self->yMax);
 }
 
 
