@@ -42,7 +42,7 @@ SfntNames_get_name = """
 
 This searches the SFNT names to first find a Unicode version of the
 name, if available, otherwise returning the first found name of the
-given type.
+given type.  Returns `None` if no name of the given type was found.
 
 Parameters
 ----------
@@ -51,5 +51,5 @@ name : int
 
 Returns
 -------
-sfnt_name : `SfntName` object
+sfnt_name : unicode or None
 """

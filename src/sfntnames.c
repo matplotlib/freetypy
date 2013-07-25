@@ -124,13 +124,13 @@ Py_SfntNames_get_name(Py_SfntNames* self, PyObject* args, PyObject* kwds) {
         }
 
         if (sfnt_name.name_id == name) {
-            return Py_SfntName_cnew((Py_Face *)self->base.owner, i);
+            return ftpy_decode(
+                sfnt_name.platform_id, sfnt_name.encoding_id,
+                (const char *)sfnt_name.string, sfnt_name.string_len);
         }
     }
 
-    PyErr_Format(PyExc_KeyError, "No SFNT name of type '%d'", name);
-
-    return NULL;
+    Py_RETURN_NONE;
 };
 
 
