@@ -257,16 +257,16 @@ static constant_def TT_WEIGHT_CLASS_constants[] = {
 static PyTypeObject Py_TT_WIDTH_CLASS_Type;
 #define TT_WIDTH_CLASS_CONST(name) DEF_CONST(name, TT_WIDTH_CLASS)
 static constant_def TT_WIDTH_CLASS_constants[] = {
-    {"ULTRA_CONDENSED", 1},
-    {"EXTRA_CONDENSED", 2},
-    {"CONDENSED", 3},
-    {"SEMI_CONDENSED", 4},
-    {"MEDIUM", 5},
-    {"NORMAL", 5},
-    {"SEMI_EXPANDED", 6},
-    {"EXPANDED", 7},
-    {"EXTRA_EXPANDED", 8},
-    {"ULTRA_EXPANDED", 9},
+    {"ULTRA_CONDENSED", 100},
+    {"EXTRA_CONDENSED", 200},
+    {"CONDENSED", 300},
+    {"SEMI_CONDENSED", 400},
+    {"MEDIUM", 500},
+    {"NORMAL", 500},
+    {"SEMI_EXPANDED", 600},
+    {"EXPANDED", 700},
+    {"EXTRA_EXPANDED", 800},
+    {"ULTRA_EXPANDED", 900},
     {NULL}
 };
 
