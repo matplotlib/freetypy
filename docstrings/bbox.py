@@ -40,31 +40,31 @@ The bounding box is specified with the coordinates of the lower left
 and the upper right corner. In PostScript, those values are often
 called ``(llx, lly)`` and ``(urx, ury)``, respectively.
 
-If `yMin` is negative, this value gives the glyph's
+If `y_min` is negative, this value gives the glyph's
 descender. Otherwise, the glyph doesn't descend below the
-baseline. Similarly, if `yMax` is positive, this value gives the
+baseline. Similarly, if `y_max` is positive, this value gives the
 glyph's ascender.
 
-`xMin` gives the horizontal distance from the glyph's origin to the
-left edge of the glyph's bounding box. If `xMin` is negative, the
+`x_min` gives the horizontal distance from the glyph's origin to the
+left edge of the glyph's bounding box. If `x_min` is negative, the
 glyph extends to the left of the origin.
 
 `BBox` also works as a Python sequence, so it is easy to do::
 
-    xmin, ymin, xmax, ymax = bbox
+    x_min, y_min, x_max, y_max = bbox
 """
 
 BBox_depth = """
 The depth of the bounding box beneath the baseline.  This is an alias
-for `yMin`.
+for `y_min`.
 """
 
 BBox_height = """
-The height of the bounding box (``yMax - yMin``).
+The height of the bounding box (``y_max - y_min``).
 """
 
 BBox_width = """
-The width of the bounding box (``xMax - xMin``).
+The width of the bounding box (``x_max - x_min``).
 """
 
 BBox_x_max = """

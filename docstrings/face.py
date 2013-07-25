@@ -75,9 +75,9 @@ An list of `Bitmap_Size` objects for all bitmap strikes in the face.
 
 Face_bbox = """
 The font bounding box. Coordinates are expressed in font units (see
-`~Face.units_per_EM`). The box is large enough to contain any glyph
-from the font. Thus, `BBox.yMax` can be seen as the ‘maximum
-ascender’, and `BBox.yMin` as the ‘minimum descender’. Only relevant
+`~Face.units_per_em`). The box is large enough to contain any glyph
+from the font. Thus, `BBox.y_max` can be seen as the ‘maximum
+ascender’, and `BBox.y_min` as the ‘minimum descender’. Only relevant
 for scalable formats.
 
 Note that the bounding box might be off by (at least) one pixel for
@@ -95,7 +95,7 @@ A list of `CharMap` objects in the face.
 Face_descender = """
 The typographic descender of the face, expressed in font units. For
 font formats not having this information, it is set to
-`BBox.yMin`. Note that this field is usually negative. Only relevant
+`BBox.y_min`. Note that this field is usually negative. Only relevant
 for scalable formats.
 """
 
@@ -925,7 +925,7 @@ hinter.
 SIZE_REQUEST_TYPE = """
 Modes for selecting the size of a bitmap font.
 
-- `NOMINAL`: The nominal size. The `Face.units_per_EM` is used to
+- `NOMINAL`: The nominal size. The `Face.units_per_em` is used to
   determine both scaling values.
 
 - `REAL_DIM`: The real dimension. The sum of the the `~Face.ascender`
@@ -1017,15 +1017,12 @@ font formats.
 """
 
 Face_is_sfnt = """
-`True` whenever a face object contains a font whose format is based on
-the SFNT storage scheme.
+`True` whenever font is based on the SFNT storage scheme.
 
 This usually means: TrueType fonts, OpenType fonts, as well as
 SFNT-based embedded bitmap fonts.
 """
 
 Face_is_fixed_width = """
-`True` whenever a face object contains some embedded bitmaps.
-
-See `Face.available_sizes`.
+`True` whenever a font face contains fixed-width (or ‘monospace’) glyphs.
 """

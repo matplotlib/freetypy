@@ -61,12 +61,12 @@ is useful in estimating the length for lines of text.
 """
 
 TT_OS2_weight_class = """
-Indicates the visual weight (degree of blackness or thickness of
-strokes) of the characters in the font.
+A `TT_WEIGHT_CLASS` value.  Indicates the visual weight (degree of
+blackness or thickness of strokes) of the characters in the font.
 """
 
 TT_WEIGHT_CLASS = """
-|freetypy| Weight values for the `TT_OS2.usWeightClass` property.
+|freetypy| Weight values for the `TT_OS2.weight_class` property.
 
 - `ULTRA_LIGHT`
 
@@ -88,9 +88,9 @@ TT_WEIGHT_CLASS = """
 """
 
 TT_OS2_width_class = """
-Indicates a relative change from the normal aspect ratio (width to
-height ratio) as specified by a font designer for the glyphs in a
-font.
+A `TT_WIDTH_CLASS` value.  Indicates a relative change from the normal
+aspect ratio (width to height ratio) as specified by a font designer
+for the glyphs in a font.
 
 Although every character in a font may have a different numeric aspect
 ratio, each character in a font of normal width has a relative aspect
@@ -102,7 +102,7 @@ font it is this difference that this parameter specifies.
 """
 
 TT_WIDTH_CLASS = """
-|freetypy| Width values for the `TT_OS2.usWidthClass` property.
+|freetypy| Width values for the `TT_OS2.width_class` property.
 
 - `ULTRA_CONDENSED`: 50% of normal
 
