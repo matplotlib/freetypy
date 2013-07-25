@@ -84,7 +84,7 @@ Py_TT_HoriHeader_init(Py_TT_HoriHeader *self, PyObject *args, PyObject *kwds)
     PyErr_SetString(
         PyExc_RuntimeError,
         "TT_HoriHeader objects may not be instantiated directly. "
-        "Use Face.get_tt_hori_header() instead.");
+        "Use Face.tt_horiheader instead.");
     return -1;
 }
 

@@ -84,7 +84,7 @@ Py_TT_VertHeader_init(Py_TT_VertHeader *self, PyObject *args, PyObject *kwds)
     PyErr_SetString(
         PyExc_RuntimeError,
         "TT_VertHeader objects may not be instantiated directly. "
-        "Use Face.get_tt_vert_header() instead.");
+        "Use Face.tt_vertheader instead.");
     return -1;
 }
 

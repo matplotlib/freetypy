@@ -421,6 +421,42 @@ static PyObject *filename_get(Py_Face *self, PyObject *closure)
 }
 
 
+static PyObject *tt_header_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_Header_cnew((PyObject *)self);
+}
+
+
+static PyObject *tt_horiheader_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_HoriHeader_cnew((PyObject *)self);
+}
+
+
+static PyObject *tt_os2_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_OS2_cnew((PyObject *)self);
+}
+
+
+static PyObject *tt_pclt_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_Pclt_cnew((PyObject *)self);
+}
+
+
+static PyObject *tt_postscript_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_Postscript_cnew((PyObject *)self);
+}
+
+
+static PyObject *tt_vertheader_get(Py_Face *self, PyObject *closure)
+{
+    return Py_TT_VertHeader_cnew((PyObject *)self);
+}
+
+
 static PyGetSetDef Py_Face_getset[] = {
     DEF_FACE_GETTER(num_faces),
     DEF_FACE_GETTER(face_index),
@@ -451,6 +487,12 @@ static PyGetSetDef Py_Face_getset[] = {
     DEF_FACE_GETTER(is_sfnt),
     DEF_FACE_GETTER(is_fixed_width),
     DEF_FACE_GETTER(filename),
+    DEF_FACE_GETTER(tt_header),
+    DEF_FACE_GETTER(tt_horiheader),
+    DEF_FACE_GETTER(tt_os2),
+    DEF_FACE_GETTER(tt_pclt),
+    DEF_FACE_GETTER(tt_postscript),
+    DEF_FACE_GETTER(tt_vertheader),
     {NULL}
 };
 
@@ -710,48 +752,6 @@ Py_Face_get_track_kerning(Py_Face *self, PyObject *args, PyObject *kwds)
 
     kerning = FROM_FT_FIXED(akerning);
     return PyFloat_FromDouble(kerning);
-}
-
-
-static PyObject*
-Py_Face_get_tt_header(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_Header_cnew((PyObject *)self);
-}
-
-
-static PyObject*
-Py_Face_get_tt_horiheader(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_HoriHeader_cnew((PyObject *)self);
-}
-
-
-static PyObject*
-Py_Face_get_tt_os2(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_OS2_cnew((PyObject *)self);
-}
-
-
-static PyObject*
-Py_Face_get_tt_pclt(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_Pclt_cnew((PyObject *)self);
-}
-
-
-static PyObject*
-Py_Face_get_tt_postscript(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_Postscript_cnew((PyObject *)self);
-}
-
-
-static PyObject*
-Py_Face_get_tt_vertheader(Py_Face *self, PyObject *args, PyObject *kwds)
-{
-    return Py_TT_VertHeader_cnew((PyObject *)self);
 }
 
 
@@ -1038,12 +1038,6 @@ static PyMethodDef Py_Face_methods[] = {
     FACE_METHOD(get_name_index),
     FACE_METHOD_NOARGS(get_postscript_name),
     FACE_METHOD(get_track_kerning),
-    FACE_METHOD_NOARGS(get_tt_header),
-    FACE_METHOD_NOARGS(get_tt_horiheader),
-    FACE_METHOD_NOARGS(get_tt_os2),
-    FACE_METHOD_NOARGS(get_tt_pclt),
-    FACE_METHOD_NOARGS(get_tt_postscript),
-    FACE_METHOD_NOARGS(get_tt_vertheader),
     FACE_METHOD_NOARGS(has_ps_glyph_names),
     FACE_METHOD(load_char),
     FACE_METHOD(load_char_unicode),

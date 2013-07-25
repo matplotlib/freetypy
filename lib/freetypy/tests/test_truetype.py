@@ -42,7 +42,7 @@ from .util import *
 def test_tt_header():
     face = ft.Face(vera_path())
 
-    x = face.get_tt_header()
+    x = face.tt_header
     assert x.checksum_adjust == 206572268
     assert x.created == datetime.datetime(2003, 4, 9, 15, 46)
     assert x.flags == 31
@@ -65,7 +65,7 @@ def test_tt_header():
 def test_tt_horiheader():
     face = ft.Face(vera_path())
 
-    x = face.get_tt_horiheader()
+    x = face.tt_horiheader
     assert x.ascender == 1901
     assert x.descender == -483
     assert x.line_gap == 0
@@ -85,13 +85,13 @@ def test_tt_horiheader():
 def test_tt_vertheader():
     face = ft.Face(vera_path())
 
-    x = face.get_tt_vertheader()
+    x = face.tt_vertheader
 
 
 def test_tt_os2():
     face = ft.Face(vera_path())
 
-    x = face.get_tt_os2()
+    x = face.tt_os2
     assert x.vend_id == 'Bits'
     assert x.selection == 64
     assert x.type == 4
@@ -139,7 +139,7 @@ def test_tt_os2():
 def test_postscript():
     face = ft.Face(vera_path())
 
-    x = face.get_tt_postscript()
+    x = face.tt_postscript
     assert x.format_type == 2.0
     assert x.is_fixed_pitch == False
     assert x.italic_angle == 0.0

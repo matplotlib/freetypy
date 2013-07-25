@@ -334,28 +334,28 @@ Only very few AFM files come with track kerning data; please refer to
 the Adobe's AFM specification for more details.
 """
 
-Face_get_tt_header = """
-Get the TrueType header (`TT_Header`) from the face.
+Face_tt_header = """
+The TrueType header (`TT_Header`) from the face.
 """
 
-Face_get_tt_horiheader = """
-Get the TrueType horizontal header (`TT_HoriHeader`) from the face.
+Face_tt_horiheader = """
+The TrueType horizontal header (`TT_HoriHeader`) from the face.
 """
 
-Face_get_tt_os2 = """
-Get the OS/2 TrueType header (`TT_OS2`) from the face.
+Face_tt_os2 = """
+The OS/2 TrueType header (`TT_OS2`) from the face.
 """
 
-Face_get_tt_pclt = """
-Get the PCLT header (`TT_Pclt`) from the face.
+Face_tt_pclt = """
+The PCLT header (`TT_Pclt`) from the face.
 """
 
-Face_get_tt_postscript = """
-Get the Postscript header (`TT_Postscript`) from the face.
+Face_tt_postscript = """
+The Postscript header (`TT_Postscript`) from the face.
 """
 
-Face_get_tt_vertheader = """
-Get the TrueType vertical header (`TT_VertHeader`) from the face.
+Face_tt_vertheader = """
+The TrueType vertical header (`TT_VertHeader`) from the face.
 """
 
 Face_glyph = """

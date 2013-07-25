@@ -87,7 +87,7 @@ Py_TT_Header_init(Py_TT_Header *self, PyObject *args, PyObject *kwds)
     PyErr_SetString(
         PyExc_RuntimeError,
         "TT_Header objects may not be instantiated directly. "
-        "Use Face.get_tt_header() instead.");
+        "Use Face.tt_header instead.");
     return -1;
 }
 
