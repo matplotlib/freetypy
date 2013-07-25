@@ -678,6 +678,7 @@ Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
     if (data.buffer == NULL) {
         return NULL;
     }
+    data.buffer[0] = 0;
     data.buffer_size = BUFFER_CHUNK_SIZE;
     data.cursor = 0;
     data.last_x = 0;
