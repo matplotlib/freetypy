@@ -40,7 +40,7 @@ import os
 from nose.tools import raises
 
 
-from ..util import vera_path, draw_glyph_to_screen
+from ..util import vera_path, draw_glyph_to_console
 
 
 try:
@@ -55,7 +55,7 @@ except ImportError:
 
 
 __all__ = ['skip_if', 'vera_path', 'make_assert', 'raises',
-           'draw_glyph_to_screen']
+           'draw_glyph_to_console']
 
 
 def skip_if(predicate):

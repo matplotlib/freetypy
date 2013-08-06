@@ -36,9 +36,9 @@ The bitmap data can be converted to a list::
      243L, 230L, 207L, 170L, 132L, 76L, 17L, 0L, 0L, 0L, 0L, 0L, 0L] ...
 
 However, two display it at the console, it's usually nicer to use the
-`freetypy.util.draw_glyph_to_screen` helper function::
+`freetypy.util.draw_glyph_to_console` helper function::
 
-    >>> ft.util.draw_glyph_to_screen(bitmap.to_list())
+    >>> ft.util.draw_glyph_to_console(bitmap.to_list())
            .+*******++.
          +*############**.
        .*##################
