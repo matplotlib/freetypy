@@ -49,8 +49,15 @@ size : float
     The size of the text, in pixels.
 """
 
-Layout_bbox = """
-Get the bounding box of the layout.
+Layout_ink_bbox = """
+Get the tight bounding box (`BBox`) of the physical characters in the
+layout.  The origin is at (0, 0).  The result is in pixels.
+"""
+
+Layout_layout_bbox = """
+Get the logical bounding box (`BBox`) of the layout.  This should be
+used to manage the layout of the text against other text.  The result
+is in pixels.
 """
 
 Layout_glyph_indices = """

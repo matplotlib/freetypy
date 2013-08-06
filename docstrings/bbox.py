@@ -54,8 +54,13 @@ glyph extends to the left of the origin.
     x_min, y_min, x_max, y_max = bbox
 """
 
+BBox_ascent = """
+The height of the bounding box above the baseline.  This is an alias
+for `y_max`.
+"""
+
 BBox_depth = """
-The depth of the bounding box beneath the baseline.  This is an alias
+The depth of the bounding box below the baseline.  This is an alias
 for `y_min`.
 """
 

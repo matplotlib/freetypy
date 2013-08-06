@@ -139,9 +139,14 @@ Py_Layout_init(Py_Layout *self, PyObject *args, PyObject *kwds)
 */
 
 
-static PyObject *bbox_get(Py_Layout *self, PyObject *closure)
+static PyObject *ink_bbox_get(Py_Layout *self, PyObject *closure)
 {
-    return Py_BBox_cnew(&self->x.bbox, 1.0 / (double)(1 << 6));
+    return Py_BBox_cnew(&self->x.ink_bbox, 1.0 / (double)(1 << 6));
+}
+
+static PyObject *layout_bbox_get(Py_Layout *self, PyObject *closure)
+{
+    return Py_BBox_cnew(&self->x.layout_bbox, 1.0 / (double)(1 << 6));
 }
 
 
@@ -158,9 +163,11 @@ static PyObject *points_get(Py_Layout *self, PyObject *closure)
 
 
 static PyGetSetDef Py_Layout_getset[] = {
-    DEF_LAYOUT_GETTER(bbox),
+    DEF_LAYOUT_GETTER(ink_bbox),
+    DEF_LAYOUT_GETTER(layout_bbox),
     DEF_LAYOUT_GETTER(glyph_indices),
     DEF_LAYOUT_GETTER(points),
+    {NULL}
 };
 
 

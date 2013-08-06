@@ -49,7 +49,8 @@ typedef struct {
     size_t size;
     FT_ULong *glyph_indices;
     ftpy_Layout_Vector *xys;
-    FT_BBox bbox;
+    FT_BBox layout_bbox;
+    FT_BBox ink_bbox;
 } ftpy_Layout;
 
 

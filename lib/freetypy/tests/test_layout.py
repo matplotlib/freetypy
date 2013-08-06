@@ -41,11 +41,12 @@ def test_layout():
     layout = ft.Layout(
         face, "The quick brown fox jumped over the lazy dog")
 
-    assert layout.bbox.width == 553.984375
-    assert layout.bbox.height == 23.0
-    assert layout.bbox.y_min == -5.0
+    assert layout.ink_bbox.width == 553.984375
+    assert layout.ink_bbox.ascent == 18.0
+    assert layout.ink_bbox.depth == -5.0
 
-    print(layout.glyph_indices.to_list())
+    assert tuple(layout.layout_bbox) == (0.0, -6.0, 555.984375, 22.0)
+
     assert layout.glyph_indices.to_list() == [
         55, 75, 72, 3, 84, 88, 76, 70, 78, 3, 69, 85, 82, 90, 81, 3,
         73, 82, 91, 3, 77, 88, 80, 83, 72, 71, 3, 82, 89, 72, 85, 3,

@@ -27,6 +27,8 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
+#include <limits.h>
+
 #include "simple_layout.h"
 
 #define FROM_FT_FIXED(v) (((double)(v) / (double)(1 << 16)))
@@ -61,8 +63,13 @@ FT_Error ftpy_calculate_simple_layout(
 
     layout->size = text_length;
 
-    layout->bbox.xMin = layout->bbox.yMin = 0;
-    layout->bbox.xMax = layout->bbox.yMax = 0;
+    layout->layout_bbox.xMin = 0;
+    layout->layout_bbox.xMax = 0;
+    layout->layout_bbox.yMax = face->size->metrics.ascender;
+    layout->layout_bbox.yMin = face->size->metrics.descender;
+
+    layout->ink_bbox.xMin = layout->ink_bbox.yMin = LONG_MAX;
+    layout->ink_bbox.xMax = layout->ink_bbox.yMax = LONG_MIN;
 
     use_kerning = FT_HAS_KERNING(face);
     pen.x = 0;
@@ -98,21 +105,32 @@ FT_Error ftpy_calculate_simple_layout(
         layout->xys[i].x = FROM_FT_FIXED(pen.x);
         layout->xys[i].y = FROM_FT_FIXED(pen.y);
 
-        /* TODO: Bounding box should be calculated from advance width */
         FT_Outline_Get_BBox(&((FT_OutlineGlyph)glyph)->outline, &glyph_bbox);
         glyph_bbox.xMin += pen.x >> 10;
         glyph_bbox.yMin += pen.y >> 10;
         glyph_bbox.xMax += pen.x >> 10;
         glyph_bbox.yMax += pen.y >> 10;
-        if (glyph_bbox.xMin < layout->bbox.xMin) layout->bbox.xMin = glyph_bbox.xMin;
-        if (glyph_bbox.yMin < layout->bbox.yMin) layout->bbox.yMin = glyph_bbox.yMin;
-        if (glyph_bbox.xMax > layout->bbox.xMax) layout->bbox.xMax = glyph_bbox.xMax;
-        if (glyph_bbox.yMax > layout->bbox.yMax) layout->bbox.yMax = glyph_bbox.yMax;
+        if (glyph_bbox.xMin < layout->ink_bbox.xMin)
+            layout->ink_bbox.xMin = glyph_bbox.xMin;
+        if (glyph_bbox.yMin < layout->ink_bbox.yMin)
+            layout->ink_bbox.yMin = glyph_bbox.yMin;
+        if (glyph_bbox.xMax > layout->ink_bbox.xMax)
+            layout->ink_bbox.xMax = glyph_bbox.xMax;
+        if (glyph_bbox.yMax > layout->ink_bbox.yMax)
+            layout->ink_bbox.yMax = glyph_bbox.yMax;
 
         pen.x += glyph->advance.x;
+        layout->layout_bbox.xMax = pen.x >> 10;
 
         previous_glyph_index = glyph_index;
     }
+
+    /* layout->ink_bbox.xMin &= 0xffffffc0; */
+    /* layout->ink_bbox.yMin &= 0xffffffc0; */
+    /* layout->ink_bbox.xMax += 1 << 6; */
+    /* layout->ink_bbox.xMax &= 0xffffffc0; */
+    /* layout->ink_bbox.yMax += 1 << 6; */
+    /* layout->ink_bbox.yMax &= 0xffffffc0; */
 
     status = 0;
 

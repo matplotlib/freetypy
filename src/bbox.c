@@ -101,6 +101,12 @@ Py_BBox_init(Py_BBox *self, PyObject *args, PyObject *kwds)
 */
 
 
+static PyObject *ascent_get(Py_BBox *self, PyObject *closure)
+{
+    return PyFloat_FromDouble(self->yMax);
+}
+
+
 static PyObject *depth_get(Py_BBox *self, PyObject *closure)
 {
     return PyFloat_FromDouble(self->yMin);
@@ -109,7 +115,7 @@ static PyObject *depth_get(Py_BBox *self, PyObject *closure)
 
 static PyObject *height_get(Py_BBox *self, PyObject *closure)
 {
-    return PyFloat_FromDouble(self->yMax);
+    return PyFloat_FromDouble(self->yMax - self->yMin);
 }
 
 
@@ -120,9 +126,11 @@ static PyObject *width_get(Py_BBox *self, PyObject *closure)
 
 
 static PyGetSetDef Py_BBox_getset[] = {
+    DEF_BBOX_GETTER(ascent),
     DEF_BBOX_GETTER(depth),
     DEF_BBOX_GETTER(height),
     DEF_BBOX_GETTER(width),
+    {NULL}
 };
 
 
