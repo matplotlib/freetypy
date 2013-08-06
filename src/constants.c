@@ -48,6 +48,7 @@ Py_Constant_cnew(ftpy_ConstantType *type, unsigned long value)
     }
     self = (PyLong_Type.tp_new)((PyTypeObject *)type, args, NULL);
     if (self == NULL) {
+        Py_DECREF(args);
         return NULL;
     }
     Py_DECREF(args);
@@ -252,7 +253,6 @@ static int make_constant_type(
 
     if (PyType_Ready(py_constant_type) < 0)
         return -1;
-    Py_INCREF(py_constant_type);
 
     return 0;
 }
@@ -285,7 +285,6 @@ static int make_bitflag_type(
 
     if (PyType_Ready(py_constant_type) < 0)
         return -1;
-    Py_INCREF(py_constant_type);
 
     return 0;
 }

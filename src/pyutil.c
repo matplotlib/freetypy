@@ -133,7 +133,11 @@ int ftpy_setup_type(PyObject *module, PyTypeObject *type)
         return 0;
     } else {
         name = qualified_name_to_name(type->tp_name);
-        return PyModule_AddObject(module, name, (PyObject *)type);
+        if (PyModule_AddObject(module, name, (PyObject *)type)) {
+            Py_DECREF(type);
+            return -1;
+        }
+        return 0;
     }
 }
 
@@ -193,6 +197,7 @@ PyObject *ftpy_PyBuffer_ToList(PyObject *obj)
     list[2] = NULL;
 
     if (PyObject_GetBuffer(obj, &view, 0)) {
+        PyErr_SetString(PyExc_TypeError, "Could not get buffer");
         return NULL;
     }
 

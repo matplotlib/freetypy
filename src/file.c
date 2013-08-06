@@ -153,6 +153,8 @@ PyObject* ftpy_PyFile_OpenFile(PyObject *filename, const char *mode)
     open = PyDict_GetItemString(builtins, "open");
     if (open == NULL) {
         Py_DECREF(builtins);
+        PyErr_SetString(PyExc_AttributeError,
+                        "Internal error: could not get open function");
         return NULL;
     }
     Py_DECREF(builtins);
