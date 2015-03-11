@@ -35,10 +35,10 @@ The bitmap data can be converted to a list::
     [[0L, 0L, 0L, 0L, 0L, 0L, 10L, 85L, 142L, 195L, 222L, 238L, 252L,
      243L, 230L, 207L, 170L, 132L, 76L, 17L, 0L, 0L, 0L, 0L, 0L, 0L] ...
 
-However, two display it at the console, it's usually nicer to use the
-`freetypy.util.draw_glyph_to_console` helper function::
+However, to display it at the console, it's usually nicer to use the
+`freetypy.util.bitmap_to_ascii` helper function::
 
-    >>> ft.util.draw_glyph_to_console(bitmap.to_list())
+    >>> ft.util.bitmap_to_ascii(bitmap)
            .+*******++.
          +*############**.
        .*##################
@@ -78,7 +78,7 @@ However, two display it at the console, it's usually nicer to use the
          .++*******+.
 
 This `~freetypy.Bitmap` is a Python buffer object.  If you have Numpy,
-that provides the most efficient way to access the data in the bitmap::
+you can easily convert this data to an array::
 
     >>> import numpy as np
     >>> array = np.array(bitmap)

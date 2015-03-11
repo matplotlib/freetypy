@@ -35,25 +35,31 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 
 import os
+import sys
 
 
 __all__ = ['vera_path', 'draw_glyph_to_console']
 
 
 def vera_path():
+    """
+    Returns the path to the copy of Bitstream Vera Sans that ships
+    with freetypy for testing purposes.
+    """
     return os.path.join(os.path.dirname(__file__), 'data', 'Vera.ttf')
 
 
-def draw_glyph_to_console(a):
+def glyph_to_ascii(a):
     """
-    Draws a single glyph, as either a nested list or a Numpy array, to
-    the console.
+    Converts a single glyph to a string with an ASCII drawing of that
+    glyph.
     """
     shades = ' .+*#'
 
-    for row in a:
+    lines = []
+    for row in a.to_list():
         for col in row:
             col = int(float(col) / 255. * 4.)
             c = shades[col]
-            print(c, end='')
-        print()
+            lines.append(c)
+    return '\n'.join(lines)
