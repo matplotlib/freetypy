@@ -31,8 +31,15 @@ either expressed or implied, of the FreeBSD Project.
 #include "doc/glyph_metrics.h"
 
 
-#define MAKE_GLYPH_METRICS_GETTER(name, convert_func, member)   \
-    MAKE_GETTER(Py_Glyph_Metrics, name, convert_func, member)
+#define MAKE_GLYPH_METRICS_GETTER(name, convert_func, member) \
+    static PyObject * name ## _get(Py_Glyph_Metrics *self, PyObject *closure) \
+    {                                           \
+        if (self->load_flags & FT_LOAD_NO_SCALE) { \
+            return PyLong_FromLong(member);         \
+        } \
+        return ftpy_PyFloat_FromF26DOT6(member); \
+    }                                           \
+
 #define DEF_GLYPH_METRICS_GETTER(name) DEF_GETTER(name, doc_Glyph_Metrics_ ## name)
 
 
@@ -44,6 +51,7 @@ either expressed or implied, of the FreeBSD Project.
 typedef struct {
     ftpy_Object base;
     FT_Glyph_Metrics *x;
+    int load_flags;
 } Py_Glyph_Metrics;
 
 
@@ -51,7 +59,7 @@ static PyTypeObject Py_Glyph_Metrics_Type;
 
 
 PyObject *
-Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner)
+Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner, int load_flags)
 {
     Py_Glyph_Metrics *self;
     self = (Py_Glyph_Metrics *)(&Py_Glyph_Metrics_Type)->tp_alloc(&Py_Glyph_Metrics_Type, 0);
@@ -59,6 +67,7 @@ Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner)
         return NULL;
     }
     self->x = glyph_metrics;
+    self->load_flags = load_flags;
     Py_INCREF(owner);
     self->base.owner = owner;
     return (PyObject *)self;
@@ -93,8 +102,6 @@ Py_Glyph_Metrics_init(Py_Glyph_Metrics *self, PyObject *args, PyObject *kwds)
 /****************************************************************************
  Getters
 */
-
-/* TODO: Determine what scale these values are in based on the load flags */
 
 MAKE_GLYPH_METRICS_GETTER(width, ftpy_PyFloat_FromF26DOT6, self->x->width);
 MAKE_GLYPH_METRICS_GETTER(height, ftpy_PyFloat_FromF26DOT6, self->x->height);

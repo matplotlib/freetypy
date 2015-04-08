@@ -117,12 +117,17 @@ callback_object : object
     be called.
 
 shift : int, optional
-    The shift that is applied to coordinates before they are sent to
+    The number of bits to shift coordinates before they are sent to
     the emitter.
 
 delta : int, optional
     The delta that is applied to coordinates before they are sent to
     the emitter, but after the shift.
+
+    The transformation applied by shift and delta is::
+
+        x' = (x << shift) - delta
+        y' = (y << shift) - delta
 
 Examples
 --------

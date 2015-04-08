@@ -41,6 +41,7 @@ typedef struct {
     void *mem;
     size_t mem_size;
     PyObject *filename;
+    int load_flags;
 } Py_Face;
 
 

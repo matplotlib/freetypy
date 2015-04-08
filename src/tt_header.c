@@ -127,8 +127,6 @@ static PyObject *mac_style_get(Py_TT_Header *self, PyObject *closure)
 
 MAKE_TT_HEADER_GETTER(lowest_rec_ppem, PyLong_FromUnsignedLong, self->x->Lowest_Rec_PPEM);
 MAKE_TT_HEADER_GETTER(font_direction, PyLong_FromLong, self->x->Font_Direction);
-MAKE_TT_HEADER_GETTER(index_to_loc_format, PyLong_FromLong, self->x->Index_To_Loc_Format);
-MAKE_TT_HEADER_GETTER(glyph_data_format, PyLong_FromLong, self->x->Glyph_Data_Format);
 
 
 static PyGetSetDef Py_TT_Header_getset[] = {
@@ -147,8 +145,6 @@ static PyGetSetDef Py_TT_Header_getset[] = {
     DEF_TT_HEADER_GETTER(mac_style),
     DEF_TT_HEADER_GETTER(lowest_rec_ppem),
     DEF_TT_HEADER_GETTER(font_direction),
-    DEF_TT_HEADER_GETTER(index_to_loc_format),
-    DEF_TT_HEADER_GETTER(glyph_data_format),
     {NULL}  /* Sentinel */
 };
 

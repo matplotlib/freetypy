@@ -35,8 +35,6 @@ either expressed or implied, of the FreeBSD Project.
 #include FT_TRUETYPE_TABLES_H
 #include FT_TRUETYPE_IDS_H
 
-/* TODO: Add a nice repr here */
-
 
 #define CHARMAP_GETTER(name, type) GETTER(name, type, FT_CharMapRec, Py_CharMap);
 #define CHARMAP_METHOD(name) DEF_METHOD(name, CharMap)
@@ -218,6 +216,29 @@ static PyMethodDef Py_CharMap_methods[] = {
 
 
 /****************************************************************************
+ repr
+*/
+
+
+static PyObject *
+Py_CharMap_repr(Py_CharMap *self)
+{
+    PyObject *encoding;
+    PyObject *repr;
+
+    encoding = encoding_get(self, NULL);
+    if (encoding == NULL) {
+        return NULL;
+    }
+
+    repr = PyUnicode_FromFormat("<freetypy.CharMap '%s'>", encoding);
+
+    Py_DECREF(encoding);
+    return repr;
+}
+
+
+/****************************************************************************
  Setup
 */
 
@@ -252,6 +273,7 @@ int setup_CharMap(PyObject *m)
         .tp_name = "freetypy.CharMap",
         .tp_basicsize = sizeof(Py_CharMap),
         .tp_doc = doc_CharMap__init__,
+        .tp_repr = (unaryfunc)Py_CharMap_repr,
         .tp_getset = Py_CharMap_getset,
         .tp_methods = Py_CharMap_methods,
         .tp_init = (initproc)Py_CharMap_init,

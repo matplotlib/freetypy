@@ -68,7 +68,7 @@ Py_Glyph_dealloc(Py_Glyph* self)
 
 
 PyObject *
-Py_Glyph_cnew(FT_GlyphSlot glyph_slot, PyObject *owner)
+Py_Glyph_cnew(FT_GlyphSlot glyph_slot, PyObject *owner, int load_flags)
 {
     Py_Glyph *self;
     FT_GlyphSlot glyph_slot_copy;
@@ -136,12 +136,30 @@ static PyObject *face_get(Py_Glyph *self, PyObject *closure)
 
 static PyObject *metrics_get(Py_Glyph *self, PyObject *closure)
 {
-    return Py_Glyph_Metrics_cnew(&self->x->metrics, (PyObject *)self);
+    return Py_Glyph_Metrics_cnew(&self->x->metrics, (PyObject *)self, self->load_flags);
 }
 
 
-MAKE_GLYPH_GETTER(linear_hori_advance, ftpy_PyFloat_FromFT_FIXED, self->x->linearHoriAdvance);
-MAKE_GLYPH_GETTER(linear_vert_advance, ftpy_PyFloat_FromFT_FIXED, self->x->linearVertAdvance);
+static PyObject *linear_hori_advance_get(Py_Glyph *self, PyObject *closure)
+{
+    if (self->load_flags & FT_LOAD_LINEAR_DESIGN) {
+        return PyInt_FromLong(self->x->linearHoriAdvance);
+    } else {
+        return ftpy_PyFloat_FromFT_FIXED(self->x->linearHoriAdvance);
+    }
+}
+
+
+static PyObject *linear_vert_advance_get(Py_Glyph *self, PyObject *closure)
+{
+    if (self->load_flags & FT_LOAD_LINEAR_DESIGN) {
+        return PyInt_FromLong(self->x->linearVertAdvance);
+    } else {
+        return ftpy_PyFloat_FromFT_FIXED(self->x->linearVertAdvance);
+    }
+}
+
+
 MAKE_GLYPH_GETTER(advance, ftpy_Py_Vector_FromVector, &self->x->advance);
 
 
@@ -237,8 +255,6 @@ Py_Glyph_render(Py_Glyph* self, PyObject* args, PyObject* kwds) {
     double x = 0;
     double y = 0;
     FT_Vector origin;
-
-    /* TODO: Handle destroy */
 
     const char* keywords[] = {"render_mode", "origin", NULL};
 

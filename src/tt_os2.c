@@ -36,8 +36,6 @@ either expressed or implied, of the FreeBSD Project.
 
 #include FT_TRUETYPE_TABLES_H
 
-/* TODO Document the remaining fields (they are in the MS, not Apple, spec) */
-
 #define MAKE_TT_OS2_GETTER(name, convert_func, member)  \
     MAKE_GETTER(Py_TT_OS2, name, convert_func, member)
 #define TT_OS2_DEF_GETTER(name) DEF_GETTER(name, doc_TT_OS2_ ## name)
@@ -139,7 +137,8 @@ MAKE_TT_OS2_GETTER(y_strikeout_size, PyLong_FromLong, self->x->yStrikeoutSize)
 MAKE_TT_OS2_GETTER(y_strikeout_position, PyLong_FromLong, self->x->yStrikeoutPosition)
 
 
-/* TODO: Expose FamilyClass and FamilySubClass as constants */
+/* FamilyClass and FamilySubClass seem archaic, little used and
+   complicated, so they aren't wrapped. */
 
 
 static PyObject *family_class_get(Py_TT_OS2 *self, PyObject *closure)
@@ -158,14 +157,12 @@ static PyObject *family_subclass_get(Py_TT_OS2 *self, PyObject *closure)
 
 static PyObject *panose_get(Py_TT_OS2 *self, PyObject *closure)
 {
-    /* TODO: Add a panose object and constants for this */
-
     return PyBytes_FromStringAndSize(
         (const char *)self->x->panose, 10);
 }
 
-/* TODO: unicode_range -- the specification is unfinished, so
-   there is no point in getting this out. */
+/* unicode_range -- the specification is unfinished, so there is no
+   point in getting this out. */
 
 static PyObject *vend_id_get(Py_TT_OS2 *self, PyObject *closure)
 {

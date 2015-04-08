@@ -41,6 +41,7 @@ FT_Error ftpy_calculate_simple_layout(
     FT_ULong charcode;
     FT_UInt glyph_index, previous_glyph_index;
     int use_kerning = 1;
+    unsigned int kerning_mode;
     FT_Vector pen;
     FT_Vector delta;
     FT_Glyph glyph;
@@ -72,21 +73,27 @@ FT_Error ftpy_calculate_simple_layout(
     layout->ink_bbox.xMax = layout->ink_bbox.yMax = LONG_MIN;
 
     use_kerning = FT_HAS_KERNING(face);
+    if (load_flags & FT_LOAD_NO_SCALE) {
+        kerning_mode = FT_KERNING_UNSCALED;
+    } else if (load_flags & FT_LOAD_NO_HINTING) {
+        kerning_mode = FT_KERNING_UNFITTED;
+    } else {
+        kerning_mode = FT_KERNING_DEFAULT;
+    }
+
     pen.x = 0;
     pen.y = 0;
     previous_glyph_index = 0;
 
     for (i = 0; i < text_length; ++i) {
-        /* TODO: This assumes the font encoding is Unicode */
+        /* This assumes the font encoding is Unicode */
         charcode = text[i];
 
         glyph_index = FT_Get_Char_Index(face, charcode);
         if (use_kerning && previous_glyph_index && glyph_index) {
             FT_Get_Kerning(
                 face, previous_glyph_index, glyph_index,
-                /* TODO: Choose the right kerning mode based on the other flags
-                   */
-                FT_KERNING_DEFAULT, &delta);
+                kerning_mode, &delta);
             pen.x += delta.x;
         }
 

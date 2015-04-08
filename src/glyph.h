@@ -39,11 +39,12 @@ typedef struct {
     ftpy_Object base;
     FT_GlyphSlot x;
     FT_Glyph glyph;
+    int load_flags;
 } Py_Glyph;
 
 
 PyObject *
-Py_Glyph_cnew(FT_GlyphSlot glyph, PyObject *owner);
+Py_Glyph_cnew(FT_GlyphSlot glyph, PyObject *owner, int load_flags);
 
 
 int setup_Glyph(PyObject *m);

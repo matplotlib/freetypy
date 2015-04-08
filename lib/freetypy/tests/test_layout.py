@@ -35,7 +35,7 @@ from .util import *
 
 def test_layout():
     face = ft.Face(vera_path())
-    face.set_charmap(0)
+    face.select_charmap(ft.ENCODING.UNICODE)
     face.set_char_size(24.0)
 
     layout = ft.Layout(
@@ -51,3 +51,13 @@ def test_layout():
         55, 75, 72, 3, 84, 88, 76, 70, 78, 3, 69, 85, 82, 90, 81, 3,
         73, 82, 91, 3, 77, 88, 80, 83, 72, 71, 3, 82, 89, 72, 85, 3,
         87, 75, 72, 3, 79, 68, 93, 92, 3, 71, 82, 74]
+
+
+@raises(ValueError)
+def test_layout_wrong_encoding():
+    face = ft.Face(vera_path())
+    face.set_charmap(0)
+    face.set_char_size(24.0)
+
+    layout = ft.Layout(
+        face, "The quick brown fox jumped over the lazy dog")

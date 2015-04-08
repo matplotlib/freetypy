@@ -418,7 +418,6 @@ Py_Outline_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Py_Outline_init(Py_Outline *self, PyObject *args, PyObject *kwds)
 {
-    /* TODO: Is there any usefulness to wrapping FT_Outline_New? */
     PyErr_SetString(
         PyExc_RuntimeError,
         "Outline objects may not be instantiated directly. "
@@ -478,7 +477,6 @@ static PyObject*
 Py_Outline_decompose(Py_Outline* self, PyObject* args, PyObject* kwds)
 {
     /* TODO: Also implement this as an iterator */
-    /* TODO: delta is in some sort of fixed value, not sure what */
 
     DecomposeData data;
     PyObject *obj;
@@ -711,7 +709,7 @@ Py_Outline_translate(Py_Outline* self, PyObject* args, PyObject* kwds)
 
     /* TODO: What is the scale of these arguments? */
 
-    const char* keywords[] = {"xOffset", "yOffset", NULL};
+    const char* keywords[] = {"x_offset", "y_offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "ll:translate", (char **)keywords,

@@ -31,14 +31,10 @@
 # as representing official policies, either expressed or implied, of
 # the FreeBSD Project.
 
-# TODO: PEP8-ify identifiers
-
 from __future__ import print_function, absolute_import
 
 from distutils.core import setup, Extension
 import glob
-import os
-import subprocess
 import sys
 
 sys.path.insert(0, 'buildext')

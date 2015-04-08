@@ -91,8 +91,7 @@ Bézier outside arcs).
 
 Computing the control box is very fast, while getting the bounding box
 can take much more time as it needs to walk over all segments and arcs
-in the outline. To get the latter, you can use the ‘ftbbox’ component
-which is dedicated to this single task (TODO).
+in the outline.
 
 Parameters
 ----------

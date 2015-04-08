@@ -81,7 +81,8 @@ static int
 Py_Layout_init(Py_Layout *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"face", "text", "load_flags", NULL};
-    PyObject *face = NULL;
+    PyObject *face_obj = NULL;
+    Py_Face *face = NULL;
     PyObject *text_obj;
     int load_flags = FT_LOAD_DEFAULT;
     PyObject *text = NULL;
@@ -91,9 +92,18 @@ Py_Layout_init(Py_Layout *self, PyObject *args, PyObject *kwds)
     int result = -1;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O|i:Layout.__init__", kwlist,
-                                     &Py_Face_Type, &face,
+                                     &Py_Face_Type, &face_obj,
                                      &text_obj,
                                      &load_flags)) {
+        goto exit;
+    }
+
+    face = (Py_Face *)face_obj;
+
+    if (face->x->charmap == NULL ||
+        face->x->charmap->encoding != FT_ENCODING_UNICODE) {
+        PyErr_SetString(
+            PyExc_ValueError, "The layout only supports Unicode character map");
         goto exit;
     }
 
@@ -115,13 +125,13 @@ Py_Layout_init(Py_Layout *self, PyObject *args, PyObject *kwds)
     decoded_text_size = (decoded_text_size - 4) >> 2;
 
     if (ftpy_exc(ftpy_calculate_simple_layout(
-        ((Py_Face *)face)->x, load_flags,
+        face->x, load_flags,
         (uint32_t *)decoded_text_buf, decoded_text_size, &self->x))) {
         goto exit;
     }
 
-    Py_INCREF(face);
-    self->base.owner = face;
+    Py_INCREF(face_obj);
+    self->base.owner = face_obj;
 
     result = 0;
 

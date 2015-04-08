@@ -58,8 +58,6 @@ either expressed or implied, of the FreeBSD Project.
 #include "vector.h"
 #include "version.h"
 
-/* TODO: Refactor all of the classes with an "owner" */
-
 
 static FT_Library ft_library;
 
@@ -117,8 +115,7 @@ struct freetypy_module_state {
 {
     PyObject* m;
 
-    if (ftpy_exc(
-            FT_Init_FreeType(&ft_library))) {
+    if (ftpy_exc(FT_Init_FreeType(&ft_library))) {
        INITERROR;
     }
 

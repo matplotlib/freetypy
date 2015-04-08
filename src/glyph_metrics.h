@@ -34,7 +34,7 @@ either expressed or implied, of the FreeBSD Project.
 
 
 PyObject *
-Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner);
+Py_Glyph_Metrics_cnew(FT_Glyph_Metrics *glyph_metrics, PyObject *owner, int load_flags);
 
 
 int setup_Glyph_Metrics(PyObject *m);

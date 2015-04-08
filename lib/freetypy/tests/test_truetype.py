@@ -48,8 +48,6 @@ def test_tt_header():
     assert x.flags == 31
     assert x.font_direction == 1
     assert x.font_revision == 2.0
-    assert x.glyph_data_format == 0
-    assert x.index_to_loc_format == 0
     assert x.lowest_rec_ppem == 8
     assert x.mac_style == 0
     assert x.magic_number == 0x5f0f3cf5

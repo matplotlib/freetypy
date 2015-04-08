@@ -157,11 +157,3 @@ The direction of the font.
 
 - -2: Like -1, but also contains neutrals
 """
-
-TT_Header_index_to_loc_format = """
-TODO
-"""
-
-TT_Header_glyph_data_format = """
-TODO
-"""

@@ -113,12 +113,13 @@ def test_face_set_transform():
 
 
 def test_kerning():
-    # TODO: Why are we not getting a kerning value here?
     face = ft.Face(vera_path())
+    face.set_char_size(24, 24, 300, 300)
     assert face.face_flags & ft.FACE_FLAG.KERNING
     A = face.get_char_index(ord('A'))
     V = face.get_char_index(ord('V'))
-    assert face.get_kerning(A, V) == (0, 0)
+    assert face.get_kerning(A, V, ft.KERNING.UNSCALED) == (-2.046875, 0.0)
+    assert face.get_kerning(A, V, ft.KERNING.DEFAULT) == (-6, 0)
 
 
 def test_get_glyph_name():

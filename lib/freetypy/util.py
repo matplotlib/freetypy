@@ -38,7 +38,7 @@ import os
 import sys
 
 
-__all__ = ['vera_path', 'draw_glyph_to_console']
+__all__ = ['vera_path', 'bitmap_to_ascii']
 
 
 def vera_path():
@@ -49,7 +49,7 @@ def vera_path():
     return os.path.join(os.path.dirname(__file__), 'data', 'Vera.ttf')
 
 
-def glyph_to_ascii(a):
+def bitmap_to_ascii(a):
     """
     Converts a single glyph to a string with an ASCII drawing of that
     glyph.

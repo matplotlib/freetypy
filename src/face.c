@@ -384,7 +384,7 @@ MAKE_FACE_GETTER(underline_thickness, PyLong_FromLong, self->x->underline_thickn
 
 static PyObject *glyph_get(Py_Face *self, PyObject *closure)
 {
-    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self);
+    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self, self->load_flags);
 }
 
 
@@ -784,7 +784,9 @@ Py_Face_load_char(Py_Face* self, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self);
+    self->load_flags = load_flags;
+
+    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self, load_flags);
 }
 
 
@@ -815,7 +817,9 @@ Py_Face_load_char_unicode(Py_Face* self, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self);
+    self->load_flags = load_flags;
+
+    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self, load_flags);
 }
 
 
@@ -837,7 +841,9 @@ Py_Face_load_glyph(Py_Face* self, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self);
+    self->load_flags = load_flags;
+
+    return Py_Glyph_cnew(self->x->glyph, (PyObject *)self, load_flags);
 }
 
 

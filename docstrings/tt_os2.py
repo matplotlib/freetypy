@@ -347,41 +347,172 @@ The maximum Unicode index in this font.
 """
 
 TT_OS2_typo_ascender = """
-TODO
+The typographic ascender for this font. Remember that this is not the
+same as `TT_HoriHeader.ascender`, which Apple defines in a far
+different manner.
+
+The suggested usage for `typo_ascender` is that it be used in
+conjunction with `TT_Header.units_per_em` to compute a typographically
+correct default line spacing. The goal is to free applications from
+Macintosh or Windows-specific metrics which are constrained by
+backward compatibility requirements. These new metrics, when combined
+with the character design widths, will allow applications to lay out
+documents in a typographically correct and portable fashion.
+
+For CJK (Chinese, Japanese, and Korean) fonts that are intended to be
+used for vertical writing (in addition to horizontal writing), the
+required value for `typo_ascender` is that which describes the top of
+the of the ideographic em-box. For example, if the ideographic em-box
+of the font extends from coordinates 0,-120 to 1000,880 (that is, a
+1000x1000 box set 120 design units below the Latin baseline), then the
+value of `typo_ascender` must be set to 880. Failing to adhere to these
+requirements will result in incorrect vertical layout.
 """
 
 TT_OS2_typo_descender = """
-TODO
+The typographic descender for this font. Remember that this is not the
+same as the `TT_HoriHeader.descender`, which Apple defines in a far
+different manner.
+
+The suggested usage for `typo_descender` is that it be used in
+conjunction with `TT_Header.units_per_em` to compute a typographically
+correct default line spacing. The goal is to free applications from
+Macintosh or Windows-specific metrics which are constrained by
+backward compatability requirements. These new metrics, when combined
+with the character design widths, will allow applications to lay out
+documents in a typographically correct and portable fashion.
+
+For CJK (Chinese, Japanese, and Korean) fonts that are intended to be
+used for vertical writing (in addition to horizontal writing), the
+required value for `typo_descender` is that which describes the bottom
+of the of the ideographic em-box. For example, if the ideographic
+em-box of the font extends from coordinates 0,-120 to 1000,880 (that
+is, a 1000x1000 box set 120 design units below the Latin baseline),
+then the value of `typo_descender` must be set to -120. Failing to
+adhere to these requirements will result in incorrect vertical layout.
 """
 
 TT_OS2_typo_line_gap = """
-TODO
-"""
+The typographic line gap for this font. Remember that this is not the
+same as `TT_HoriHeader.line_gap`, which Apple defines in a far
+different manner.
+
+The suggested usage for `typo_line_gap` is that it be used in
+conjunction with `TTHeader.units_per_em` to compute a typographically
+correct default line spacing. Typical values average 7-10% of units
+per em. The goal is to free applications from Macintosh or
+Windows-specific metrics which are constrained by backward
+compatability requirements. These new metrics, when combined with the
+character design widths, will allow applications to lay out documents
+in a typographically correct and portable fashion.  """
 
 TT_OS2_win_ascent = """
-TODO
+The ascender metric for Windows. This, too, is distinct from Apple's
+`TT_HoriHeader.ascender` value and from the `typo_ascender`
+values. `win_ascent` is computed as the ``y_max`` for all characters
+in the Windows ANSI character set. `win_ascent` is used to compute the
+Windows font height and default line spacing. For platform 3 encoding
+0 fonts, it is the same as `TT_Header.y_max`. Windows will clip the
+bitmap of any portion of a glyph that appears above this value. Some
+applications use this value to determine default line spacing. This is
+strongly discouraged. The typographic ascender, descender and line gap
+fields in conjunction with `TT_Header.units_per_em` should be used for
+this purpose. Developers should set this field keeping the above
+factors in mind.
+
+If any clipping is unacceptable, then the value should be set to
+`TT_Header.y_max`.
+
+However, if a developer desires to provide appropriate default line
+spacing using this field, for those applications that continue to use
+this field for doing so (against OpenType recommendations), then the
+value should be set appropriately. In such a case, it may result in
+some glyph bitmaps being clipped.
 """
 
 TT_OS2_win_descent = """
-TODO
+The descender metric for Windows. This, too, is distinct from Apple's
+`TT_HoriHeader.descender` value and from the
+`typo_descender`. `win_descent` is computed as the ``-y_min`` for all
+characters in the Windows ANSI character set. `win_descent` is used to
+compute the Windows font height and default line spacing. For platform
+3 encoding 0 fonts, it is the same as ``-TTHeader.y_min``. Windows
+will clip the bitmap of any portion of a glyph that appears below this
+value. Some applications use this value to determine default line
+spacing. This is strongly discouraged. The typographic ascender,
+descender and line gap fields in conjunction with unitsPerEm should be
+used for this purpose. Developers should set this field keeping the
+above factors in mind.
+
+If any clipping is unacceptable, then the value should be set to
+`TT_Header.y_min`.
+
+However, if a developer desires to provide appropriate default line
+spacing using this field, for those applications that continue to use
+this field for doing so (against OpenType recommendations), then the
+value should be set appropriately. In such a case, it may result in
+some glyph bitmaps being clipped.
 """
 
 TT_OS2_x_height = """
-TODO
+This metric specifies the distance between the baseline and the
+approximate height of non-ascending lowercase letters measured in font
+units. This value would normally be specified by a type designer but
+in situations where that is not possible, for example when a legacy
+font is being converted, the value may be set equal to the top of the
+unscaled and unhinted glyph bounding box of the glyph encoded at
+``U+0078`` (``LATIN SMALL LETTER X``). If no glyph is encoded in this
+position the field should be set to 0.
+
+This metric, if specified, can be used in font substitution: the
+`x_height` value of one font can be scaled to approximate the apparent
+size of another.
 """
 
 TT_OS2_cap_height = """
-TODO
+This metric specifies the distance between the baseline and the
+approximate height of uppercase letters measured in font units. This
+value would normally be specified by a type designer but in situations
+where that is not possible, for example when a legacy font is being
+converted, the value may be set equal to the top of the unscaled and
+unhinted glyph bounding box of the glyph encoded at ``U+0048`` (``LATIN
+CAPITAL LETTER H``). If no glyph is encoded in this position the field
+should be set to 0.
+
+This metric, if specified, can be used in systems that specify type
+size by capital height measured in millimeters. It can also be used as
+an alignment metric; the top of a drop capital, for instance, can be
+aligned to the `cap_height` metric of the first line of text.
 """
 
 TT_OS2_default_char = """
-TODO
+Whenever a request is made for a character that is not in the font,
+Windows provides this default character. If the value of this field is
+zero, glyph ID 0 is to be used for the default character otherwise
+this is the Unicode encoding of the glyph that Windows uses as the
+default character. This field cannot represent supplementary character
+values (codepoints greater than ``0xFFFF``), and so applications are
+strongly discouraged from using this field.
 """
 
 TT_OS2_break_char = """
-TODO
+This is the Unicode encoding of the glyph that Windows uses as the
+break character. The break character is used to separate words and
+justify text. Most fonts specify 'space' as the break character. This
+field cannot represent supplementary character values (codepoints
+greater than ``0xFFFF``), and so applications are strongly discouraged
+from using this field.
 """
 
 TT_OS2_max_context = """
-TODO
+The maximum length of a target glyph context for any feature in this
+font. For example, a font which has only a pair kerning feature should
+set this field to 2. If the font also has a ligature feature in which
+the glyph sequence "f f i" is substituted by the ligature "ﬃ", then
+this field should be set to 3. This field could be useful to
+sophisticated line-breaking engines in determining how far they should
+look ahead to test whether something could change that effects the
+line breaking. For chaining contextual lookups, the length of the
+string (covered glyph) + (input sequence) + (lookahead sequence)
+should be considered.
 """
