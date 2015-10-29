@@ -110,7 +110,7 @@ Py_Bitmap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 
 static int
-Py_Bitmap_init()
+Py_Bitmap_init(void)
 {
     PyErr_SetString(
         PyExc_RuntimeError,

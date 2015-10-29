@@ -110,7 +110,15 @@ static PyObject *type_face_get(Py_TT_Pclt *self, PyObject *closure)
 
 static PyObject *character_complement_get(Py_TT_Pclt *self, PyObject *closure)
 {
-    return PyLong_FromUnsignedLong(*((long unsigned *)&self->x->CharacterComplement));
+    unsigned long result;
+    int i;
+
+    result = 0;
+    for (i = 0; i < 8; ++i) {
+        result |= (self->x->CharacterComplement[i] << (CHAR_BIT * i));
+    }
+
+    return PyLong_FromUnsignedLong(result);
 }
 
 

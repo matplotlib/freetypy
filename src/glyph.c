@@ -143,7 +143,7 @@ static PyObject *metrics_get(Py_Glyph *self, PyObject *closure)
 static PyObject *linear_hori_advance_get(Py_Glyph *self, PyObject *closure)
 {
     if (self->load_flags & FT_LOAD_LINEAR_DESIGN) {
-        return PyInt_FromLong(self->x->linearHoriAdvance);
+        return PyLong_FromLong(self->x->linearHoriAdvance);
     } else {
         return ftpy_PyFloat_FromFT_FIXED(self->x->linearHoriAdvance);
     }
@@ -153,7 +153,7 @@ static PyObject *linear_hori_advance_get(Py_Glyph *self, PyObject *closure)
 static PyObject *linear_vert_advance_get(Py_Glyph *self, PyObject *closure)
 {
     if (self->load_flags & FT_LOAD_LINEAR_DESIGN) {
-        return PyInt_FromLong(self->x->linearVertAdvance);
+        return PyLong_FromLong(self->x->linearVertAdvance);
     } else {
         return ftpy_PyFloat_FromFT_FIXED(self->x->linearVertAdvance);
     }
