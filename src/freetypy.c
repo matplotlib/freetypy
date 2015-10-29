@@ -115,7 +115,6 @@ static PyMethodDef module_methods[] = {
     m = Py_InitModule3(
         "_freetypy", module_methods,
         "Freetype bindings");
-    _state.dummy = 0;
 #endif
 
     if (m == NULL) {
