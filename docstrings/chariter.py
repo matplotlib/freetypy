@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, Michael Droettboom All rights reserved.
+# Copyright (c) 2015, Michael Droettboom All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -36,4 +36,3 @@ from __future__ import print_function, unicode_literals, absolute_import
 CharIter__init__ = """
 An iterator over all of the glyphs in a charmap.
 """
-
