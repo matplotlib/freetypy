@@ -102,7 +102,7 @@ def test_face_set_transform():
     face.set_transform([[2, 0], [0, 2]], [20, 20])
 
     face.set_char_size(12, 12, 300, 300)
-    glyph = face.load_char(65, ft.LOAD.RENDER)
+    glyph = face.load_char(65, 0)
 
     assert glyph.advance == (4352, 0)
     assert glyph.advance.x == 4352
