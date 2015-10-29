@@ -47,7 +47,7 @@ either expressed or implied, of the FreeBSD Project.
 #include FT_FREETYPE_H
 
 
-FT_Library get_ft_library();
+FT_Library get_ft_library(void);
 
 
 #include "freetypy_error.h"

@@ -34,6 +34,6 @@ either expressed or implied, of the FreeBSD Project.
 
 int ftpy_exc(FT_Error error);
 
-int setup_errors();
+int setup_errors(void);
 
 #endif

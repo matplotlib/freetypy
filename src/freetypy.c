@@ -66,15 +66,10 @@ FT_Library get_ft_library()
     return ft_library;
 }
 
-
 static PyMethodDef module_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-
-struct freetypy_module_state {
-    int dummy;
-};
 
 /* TODO: Hide all exported symbols in the shared library except this one */
 
@@ -85,18 +80,16 @@ struct freetypy_module_state {
         FT_Done_FreeType(ft_library);
     }
 
-    #define GET_MODULE_STATE(m) ((struct freetypy_module_state*)PyModule_GetState((m)))
-
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_freetypy",
         NULL,
-        sizeof(struct freetypy_module_state),
+        0,
         module_methods,
         NULL,
         NULL,
         NULL,
-        freetypy_module_dealloc
+        (freefunc)freetypy_module_dealloc
     };
 
     #define INITERROR return NULL
@@ -105,9 +98,6 @@ struct freetypy_module_state {
     PyInit__freetypy(void)
 #else
     #define INITERROR return
-
-    #define GET_MODULE_STATE(m) (&_state)
-    static struct freetypy_module_state _state;
 
     PyMODINIT_FUNC
     init_freetypy(void)
