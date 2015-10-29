@@ -306,8 +306,8 @@ Parameters
 matrix : 2x2 sequence of floats, optional
     A matrix of the form::
 
-        [[xx, xy]
-         [yx, yy]]
+        . [[xx, xy]
+        .  [yx, yy]]
 """
 
 Outline_translate = """
