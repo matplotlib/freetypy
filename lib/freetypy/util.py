@@ -43,16 +43,16 @@ __all__ = ['vera_path', 'bitmap_to_ascii']
 
 def vera_path():
     """
-    Returns the path to the copy of Bitstream Vera Sans that ships
-    with freetypy for testing purposes.
+    The path to the copy of Bitstream Vera Sans that ships with
+    freetypy for testing purposes.
     """
     return os.path.join(os.path.dirname(__file__), 'data', 'Vera.ttf')
 
 
 def bitmap_to_ascii(a):
     """
-    Converts a single glyph to a string with an ASCII drawing of that
-    glyph.
+    Converts a single `Glyph` to a string with an ASCII drawing of
+    that glyph.
     """
     shades = ' .+*#'
 

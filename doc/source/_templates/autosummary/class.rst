@@ -12,7 +12,7 @@
    .. rubric:: Methods
 
    .. autosummary::
-      :toctree: _generated
+      :toctree: .
    {% for item in methods %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
@@ -24,7 +24,7 @@
    .. rubric:: Attributes
 
    .. autosummary::
-      :toctree: _generated
+      :toctree: .
    {% for item in attributes %}
       ~{{ name }}.{{ item }}
    {%- endfor %}

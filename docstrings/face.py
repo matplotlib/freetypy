@@ -85,11 +85,11 @@ hinted fonts. See `Size_Metrics` for further discussion.
 """
 
 Face_charmap = """
-The current active `CharMap` for this face.
+The currently active `CharMap`.
 """
 
 Face_charmaps = """
-A list of `CharMap` objects in the face.
+A list of `CharMap` objects.
 """
 
 Face_descender = """
@@ -119,12 +119,13 @@ embedded in a PDF file).
 """
 
 Face_filename = """
-|freetypy| The argument used to initialize the font.  Is usually a
-filename, but not always.
+|freetypy| The argument used to initialize the font.
+
+It is usually a filename, but may be a file object.
 """
 
 Face_get_char_index_unicode = """
-|freetypy| Return the glyph index of a given Unicode character.
+|freetypy| Get the glyph index of a given Unicode character.
 
 Unlike `get_char_index`, if the selected `CharMap` is not Unicode, the
 given unicode character will first be encoded to the correct character
@@ -140,22 +141,23 @@ charcode : length-1 unicode string
 Returns
 -------
 glyph_index : int
-    The glyph index.  0 means ‘undefined character code’.
+    The glyph index.  0 means ‘undefined char code’.
 """
 
 Face_get_char_index = """
-Return the glyph index of a given character code. This function uses a
-charmap object to do the mapping.
+Get the glyph index of a given char code.
+
+This function uses a charmap object to do the mapping.
 
 Parameters
 ----------
 charcode : int
-    The character code.
+    The char code.
 
 Returns
 -------
 glyph_index : int
-    The glyph index.  0 means ‘undefined character code’.
+    The glyph index.  0 means ‘undefined char code’.
 
 Notes
 -----
@@ -172,14 +174,15 @@ index -- Type 42 fonts are considered invalid under this condition.
 """
 
 Face_get_char_name = """
-|freetypy| Returns the glyph name of the given unicode code point.
+|freetypy| Get the glyph name of the given unicode code point.
+
 Unlike `get_glyph_name`, this function will always return something,
 even if the font contains no glyph names.
 
 Parameters
 ----------
 charcode : int
-    The character code.
+    The char code.
 
 Returns
 -------
@@ -188,13 +191,13 @@ glyph_name : unicode
 """
 
 Face_get_char_variant_index = """
-Return the glyph index of a given character code as modified by the
-variation selector.
+Get the glyph id of a char code as modified by the variant
+selector.
 
 Parameters
 ----------
 charcode : int
-    The character code point in Unicode.
+    The char code point in Unicode.
 
 variantSelector : int
     The Unicode code point of the variation selector.
@@ -202,7 +205,7 @@ variantSelector : int
 Returns
 -------
 glyph_index : int
-    The glyph index. 0 means either ‘undefined character code’, or
+    The glyph index. 0 means either ‘undefined char code’, or
     ‘undefined selector code’, or ‘no variation selector cmap
     subtable’, or ‘current CharMap is not Unicode’.
 
@@ -219,16 +222,16 @@ encoding.
 """
 
 Face_get_chars = """
-Returns an iterator over all of the character codes in the current
-charmap.
+Iterate over all of the char codes in the current charmap.
 
-Each result of the iterator is a tuple of the form (`charcode`,
-`glyph_index`).
+Each result of the iterator is a tuple of the form ``(charcode,
+glyph_index)``.
 """
 
 Face_get_fstype_flags = """
-Return the `FSTYPE` flags for a font, which indicate the licensing for
-embedding and subsetting a font.
+Get the `FSTYPE` flags for a font.
+
+These indicate the licensing for embedding and subsetting a font.
 
 Returns
 -------
@@ -237,8 +240,10 @@ flags : int
 """
 
 Face_get_glyph_name = """
-Retrieve the ASCII name of the given glyph in a face.  This only works
-for those faces where `has_ps_glyph_names` returns `True`.
+Get the ASCII name of the given glyph in a face.
+
+This only works for those faces where `has_ps_glyph_names` returns
+`True`.
 
 Parameters
 ----------
@@ -260,7 +265,7 @@ index 0 always corresponds to the ‘missing glyph’ (called ‘.notdef’).
 """
 
 Face_get_kerning = """
-Return the kerning vector between two glyphs of a same face.
+Get the kerning vector between two glyphs of a same face.
 
 Parameters
 ----------
@@ -287,8 +292,9 @@ format-specific interfaces.
 """
 
 Face_get_name_index = """
-Return the glyph index of a given glyph name. This function uses
-driver specific objects to do the translation.
+Get the glyph index of a given glyph name.
+
+This function uses driver specific objects to do the translation.
 
 Parameters
 ----------
@@ -298,17 +304,17 @@ glyph_name : str
 Returns
 -------
 glyph_index : int
-    The glyph index.  0 means ‘undefined character code’.
+    The glyph index.  0 means ‘undefined char code’.
 """
 
 Face_get_postscript_name = """
-Retrieve the ASCII PostScript name of a given face, if available.
+Get the ASCII PostScript name of a given face, if available.
 
 This only works with PostScript and TrueType fonts.
 """
 
 Face_get_track_kerning = """
-Return the track kerning for a given face object at a given size.
+Get the track kerning for a given face object at a given size.
 
 Parameters
 ----------
@@ -335,31 +341,31 @@ the Adobe's AFM specification for more details.
 """
 
 Face_tt_header = """
-The TrueType header (`TT_Header`) from the face.
+The TrueType header (`TT_Header`).
 """
 
 Face_tt_horiheader = """
-The TrueType horizontal header (`TT_HoriHeader`) from the face.
+The TrueType horizontal header (`TT_HoriHeader`).
 """
 
 Face_tt_os2 = """
-The OS/2 TrueType header (`TT_OS2`) from the face.
+The OS/2 TrueType header (`TT_OS2`).
 """
 
 Face_tt_pclt = """
-The PCLT header (`TT_Pclt`) from the face.
+The PCLT header (`TT_Pclt`).
 """
 
 Face_tt_postscript = """
-The Postscript header (`TT_Postscript`) from the face.
+The Postscript header (`TT_Postscript`).
 """
 
 Face_tt_vertheader = """
-The TrueType vertical header (`TT_VertHeader`) from the face.
+The TrueType vertical header (`TT_VertHeader`).
 """
 
 Face_glyph = """
-The face's associated glyph slot.
+The face's currently loaded glyph slot.
 """
 
 Face_has_ps_glyph_names = """
@@ -370,20 +376,21 @@ names returned by `Face.get_glyph_name` are reliable.
 """
 
 Face_height = """
-This value is the vertical distance between two consecutive baselines,
-expressed in font units. It is always positive. Only relevant for
-scalable formats.
+The vertical distance between two consecutive baselines, expressed in
+font units.
+
+It is always positive. Only relevant for scalable formats.
 
 If you want the global glyph height, use `ascender` - `descender`.
 """
 
 Face_load_char = """
-Load a single glyph, according to its character code.
+Load a single glyph, according to its char code.
 
 Parameters
 ----------
 char_code : int
-    The glyph's character code, according to the current charmap used
+    The glyph's char code, according to the current charmap used
     in the face.
 
 load_flags : int, optional
@@ -471,7 +478,7 @@ details.
 Note that the auto-hinter needs a valid Unicode cmap (either a native
 one or synthesized by FreeType) for producing correct results. If a
 font provides an incorrect mapping (for example, assigning the
-character code U+005A, LATIN CAPITAL LETTER Z, to a glyph depicting a
+char code U+005A, LATIN CAPITAL LETTER Z, to a glyph depicting a
 mathematical integral sign), the auto-hinter might produce useless
 results.
 
@@ -597,7 +604,7 @@ strike_index : int
 """
 
 Face_set_char_size = """
-Request a nominal font size (in points).
+Set the nominal font size (in points).
 
 Parameters
 ----------
@@ -625,7 +632,7 @@ set to 72dpi.
 """
 
 Face_set_charmap = """
-Select a charmap for character code to glyph index mapping.
+Select a charmap for char code to glyph index mapping.
 
 Parameters
 ----------
@@ -638,7 +645,7 @@ This fails if a type 14 charmap is selected.
 """
 
 Face_set_transform = """
-Set the transformation that is applied to glyph images.
+Set the transformation applied to glyph images.
 
 Parameters
 ----------
@@ -666,7 +673,7 @@ Get a `SfntNames` list of `SfntName` entries for the Face.
 """
 
 Face_size = """
-The current active size for this face.
+The currently active size.
 """
 
 Face_style_flags = """
@@ -684,18 +691,20 @@ interface to access them.
 """
 
 Face_underline_position = """
-The position, in font units, of the underline line for this face. It
-is the center of the underlining stem. Only relevant for scalable
+The position of the underline line, in font units.
+
+It is the center of the underlining stem. Only relevant for scalable
 formats.
 """
 
 Face_underline_thickness = """
-The thickness, in font units, of the underline for this face. Only
-relevant for scalable formats.
+The thickness of the underline, in font units.
+
+Only relevant for scalable formats.
 """
 
 Face_units_per_em = """
-The number of font units per EM square for this face.
+The number of font units per EM square.
 
 This is typically 2048 for TrueType fonts, and 1000 for Type 1
 fonts. Only relevant for scalable formats.
@@ -992,37 +1001,37 @@ Kerning modes.
 """
 
 Face_has_horizontal = """
-`True` whenever a face object contains horizontal metrics.
+Horizontal metrics are present.
 
 This is `True` for all font formats though.
 """
 
 Face_has_vertical = """
-`True` whenever a face object contains real vertical metrics.
+Vertical metrics are present.
 
 `False` when the face contains only synthesized vertical metrics.
 """
 
 Face_has_kerning = """
-`True` whenever a face object contains kerning data.
+Kerning data is present.
 
 The kerning data can be accessed with `Face.get_kerning`.
 """
 
 Face_is_scalable = """
-`True` whenever a face object contains a scalable font face.
+Is a scalable `Face`.
 
 This includes TrueType, Type 1, Type 42, CID, OpenType/CFF, and PFR
 font formats.
 """
 
 Face_is_sfnt = """
-`True` whenever font is based on the SFNT storage scheme.
+Based on the SFNT storage scheme.
 
 This usually means: TrueType fonts, OpenType fonts, as well as
 SFNT-based embedded bitmap fonts.
 """
 
 Face_is_fixed_width = """
-`True` whenever a font face contains fixed-width (or ‘monospace’) glyphs.
+Contains fixed-width (or ‘monospace’) glyphs.
 """

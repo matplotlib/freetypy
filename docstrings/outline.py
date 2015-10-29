@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015, Michael Droettboom All rights reserved.
+# Copyright (c) 2013, Michael Droettboom All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -193,9 +193,10 @@ or `Outline.get_bbox`.
 """
 
 Outline_embolden_xy = """
-Embolden an outline. The new outline will be `xstrength` pixels wider
-and `ystrength` pixels higher. Otherwise, it is similar to
-`Outline.embolden`, which uses the same strength in both directions.
+Embolden an outline, with differing *x* and *y* amounts. The new
+outline will be `xstrength` pixels wider and `ystrength` pixels
+higher. Otherwise, it is similar to `Outline.embolden`, which uses the
+same strength in both directions.
 
 Parameters
 ----------
@@ -228,11 +229,11 @@ be eventually converted back to font units.
 """
 
 Outline_get_cbox = """
-Return an outline's ‘control box’. The control box encloses all the
-outline's points, including Bézier control points. Though it coincides
-with the exact bounding box for most glyphs, it can be slightly larger
-in some situations (like when rotating an outline which contains
-Bézier outside arcs).
+Get the control box. The control box encloses all the outline's
+points, including Bézier control points. Though it coincides with the
+exact bounding box for most glyphs, it can be slightly larger in some
+situations (like when rotating an outline which contains Bézier
+outside arcs).
 
 Computing the control box is very fast, while getting the bounding box
 can take much more time as it needs to walk over all segments and arcs

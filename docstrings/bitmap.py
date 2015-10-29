@@ -75,11 +75,13 @@ with `PIXEL_MODE.GRAY`.
 """
 
 Bitmap_pitch = """
-The pitch's absolute value is the number of bytes taken by one bitmap
-row, including padding. However, the pitch is positive when the bitmap
-has a ‘down’ flow, and negative when it has an ‘up’ flow. In all
-cases, the pitch is an offset to add to a bitmap pointer in order to
-go down one row.
+The number of bytes taken by one bitmap row.
+
+Includes padding.
+
+The pitch is positive when the bitmap has a ‘down’ flow, and negative
+when it has an ‘up’ flow. In all cases, the pitch is an offset to add
+to a bitmap pointer in order to go down one row.
 
 Note that ‘padding’ means the alignment of a bitmap to a byte border,
 and FreeType functions normally align to the smallest possible integer

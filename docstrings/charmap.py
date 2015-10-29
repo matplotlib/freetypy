@@ -67,7 +67,7 @@ The parent `Face` object.
 """
 
 CharMap_get_format = """
-Return TrueType/sfnt specific cmap format.
+Get the TrueType/sfnt specific cmap format.
 
 Returns
 -------
@@ -77,7 +77,7 @@ format : int
 """
 
 CharMap_get_language_id = """
-Return TrueType/sfnt specific cmap language ID.
+Get the TrueType/sfnt specific cmap language ID.
 
 It will be one of the constants in `TT_MAC_LANGID` or `TT_MS_LANGID`.
 
