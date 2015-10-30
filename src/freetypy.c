@@ -121,6 +121,17 @@ static PyMethodDef module_methods[] = {
         INITERROR;
     }
 
+    {
+        FT_Int major, minor, patch;
+        char version_string[64];
+
+        FT_Library_Version(_ft2Library, &major, &minor, &patch);
+        sprintf(version_string, "%d.%d.%d", major, minor, patch);
+        if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
+            INITERROR;
+        }
+    }
+
     if (setup_pyutil(m) ||
         setup_constants(m) ||
         setup_version(m) ||
