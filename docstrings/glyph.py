@@ -59,15 +59,15 @@ Get the `Bitmap` from this `Glyph` if it has been rendered.
 """
 
 Glyph_bitmap_left = """
-This is the bitmap's left bearing expressed in integer pixels. Of
-course, this is only valid if the format is `GLYPH_FORMAT.BITMAP`.
+The bitmap's left bearing expressed in integer pixels. Of course, this
+is only valid if the format is `GLYPH_FORMAT.BITMAP`.
 """
 
 Glyph_bitmap_top = """
-This is the bitmap's top bearing expressed in integer pixels. Remember
-that this is the distance from the baseline to the top-most glyph
-scanline, upwards y coordinates being positive. Of course, this is
-only valid if the format is `GLYPH_FORMAT.BITMAP`.
+The bitmap's top bearing expressed in integer pixels. Remember that
+this is the distance from the baseline to the top-most glyph scanline,
+upwards *y* coordinates being positive. Of course, this is only valid
+if the format is `GLYPH_FORMAT.BITMAP`.
 """
 
 Glyph_face = """
@@ -75,19 +75,20 @@ The parent face object.
 """
 
 Glyph_format = """
-This field indicates the format of the image contained in the glyph
-slot. Typically `GLYPH_FORMAT.BITMAP`, `GLYPH_FORMAT.OUTLINE`, or
+The format of the image in the glyph slot. Typically
+`GLYPH_FORMAT.BITMAP`, `GLYPH_FORMAT.OUTLINE`, or
 `GLYPH_FORMAT.COMPOSITE`, but others are possible.
 
 See `GLYPH_FORMAT` for the set of available formats.
 """
 
 Glyph_get_cbox = """
-Return a glyph's ‘control box’. The control box encloses all the
-outline's points, including Bézier control points. Though it coincides
-with the exact bounding box for most glyphs, it can be slightly larger
-in some situations (like when rotating an outline which contains
-Bézier outside arcs).
+Get the glyph's ‘control box’.
+
+The control box encloses all the outline's points, including Bézier
+control points. Though it coincides with the exact bounding box for
+most glyphs, it can be slightly larger in some situations (like when
+rotating an outline which contains Bézier outside arcs).
 
 Computing the control box is very fast, while getting the bounding box
 can take much more time as it needs to walk over all segments and arcs
@@ -157,8 +158,9 @@ layout. Only relevant for outline glyphs.
 """
 
 Glyph_lsb_delta = """
-The difference between hinted and unhinted left side bearing while
-autohinting is active. Zero otherwise.
+The difference between hinted and unhinted left side bearing.
+
+Valid when autohinting is active. Zero otherwise.
 """
 
 Glyph_metrics = """
@@ -206,8 +208,9 @@ into 8-bit pixmaps.
 """
 
 Glyph_rsb_delta = """
-The difference between hinted and unhinted right side bearing while
-autohinting is active. Zero otherwise.
+The difference between hinted and unhinted right side bearing
+
+Valid when autohinting is active. Zero otherwise.
 """
 
 Glyph_subglyphs = """

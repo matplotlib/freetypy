@@ -1,29 +1,32 @@
-{% extends "!autosummary/class.rst" %}
+{{ fullname }}
+{{ underline }}
 
-.. currentmodule:: freetypy
+.. currentmodule:: {{ module }}
 
-{% block methods %}
-{% if methods %}
-   .. HACK -- the point here is that we don't want this to appear in the output, but the autosummary should still generate the pages.
-      .. autosummary::
-         :toctree:
-      {% for item in all_methods %}
-         {%- if not item.startswith('_') or item in ['__call__'] %}
-         {{ name }}.{{ item }}
-         {%- endif -%}
-      {%- endfor %}
-{% endif %}
-{% endblock %}
+.. autoclass:: {{ objname }}
 
-{% block attributes %}
-{% if attributes %}
-   .. HACK -- the point here is that we don't want this to appear in the output, but the autosummary should still generate the pages.
-      .. autosummary::
-         :toctree:
-      {% for item in all_attributes %}
-         {%- if not item.startswith('_') %}
-         {{ name }}.{{ item }}
-         {%- endif -%}
-      {%- endfor %}
-{% endif %}
-{% endblock %}
+   {% block methods %}
+   .. automethod:: __init__
+
+   {% if methods %}
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   {% for item in methods %}
+      ~{{ name }}.{{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
+   {% block attributes %}
+   {% if attributes %}
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   {% for item in attributes %}
+      ~{{ name }}.{{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}

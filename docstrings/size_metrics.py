@@ -75,9 +75,12 @@ It is also referred to as ‘nominal width’.
 """
 
 Size_Metrics_x_scale = """
-A fractional scaling value used to convert horizontal metrics from
-font units to 26.6 fractional pixels. Only relevant for scalable font
-formats.
+A fractional scaling value.
+
+Used to convert horizontal metrics from font units to 26.6 fractional
+pixels.
+
+Only relevant for scalable font formats.
 """
 
 Size_Metrics_y_ppem = """
@@ -87,7 +90,10 @@ It is also referred to as ‘nominal height’.
 """
 
 Size_Metrics_y_scale = """
-A fractional scaling value used to convert horizontal metrics from
-font units to 26.6 fractional pixels. Only relevant for scalable font
-formats.
+A fractional scaling value.
+
+Used to convert horizontal metrics from font units to 26.6 fractional
+pixels.
+
+Only relevant for scalable font formats.
 """

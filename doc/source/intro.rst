@@ -2,7 +2,7 @@ Introduction to freetypy
 ========================
 
 Since freetypy closely follows freetype's native C API, the `freetype
-documentation <http://freetype.org/freetype2/documentation.html>`_
+documentation <http://freetype.org/freetype2/docs/documentation.html>`_
 serves as a good introduction to freetypy as well.
 
 Basic usage
