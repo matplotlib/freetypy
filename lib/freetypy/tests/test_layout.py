@@ -45,6 +45,8 @@ def test_layout():
     assert layout.ink_bbox.ascent == 18.0
     assert layout.ink_bbox.depth == -5.0
 
+    print(ft.__freetype_version__)
+    print(tuple(layout.layout_bbox))
     assert tuple(layout.layout_bbox) == (0.0, -6.0, 555.984375, 22.0)
 
     assert layout.glyph_indices.to_list() == [

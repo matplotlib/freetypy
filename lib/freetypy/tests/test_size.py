@@ -44,6 +44,7 @@ def test_size():
     assert face.size.metrics.y_ppem == 50
     assert face.size.metrics.x_scale == 1.5625
     assert face.size.metrics.y_scale == 1.5625
+    print(face.size.metrics.ascender)
     assert face.size.metrics.ascender == 46.0
     assert face.size.metrics.descender == -12.0
     assert face.size.metrics.max_advance == 67.0
