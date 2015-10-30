@@ -550,29 +550,6 @@ Py_Outline_embolden(Py_Outline* self, PyObject* args, PyObject* kwds)
 
 
 static PyObject*
-Py_Outline_embolden_xy(Py_Outline* self, PyObject* args, PyObject* kwds) {
-    double xstrength;
-    double ystrength;
-
-    const char* keywords[] = {"xstrength", "ystrength", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "d:embolden", (char **)keywords,
-                &xstrength, &ystrength)) {
-        return NULL;
-    }
-
-    if (ftpy_exc(
-            FT_Outline_EmboldenXY(&self->x,
-                TO_F26DOT6(xstrength), TO_F26DOT6(ystrength)))) {
-        return NULL;
-    }
-
-    Py_RETURN_NONE;
-};
-
-
-static PyObject*
 Py_Outline_get_bbox(Py_Outline* self, PyObject* args, PyObject* kwds)
 {
     FT_BBox bbox;
@@ -730,7 +707,6 @@ static PyMethodDef Py_Outline_methods[] = {
     OUTLINE_METHOD_NOARGS(check),
     OUTLINE_METHOD(decompose),
     OUTLINE_METHOD(embolden),
-    OUTLINE_METHOD(embolden_xy),
     OUTLINE_METHOD_NOARGS(get_bbox),
     OUTLINE_METHOD_NOARGS(get_cbox),
     OUTLINE_METHOD_NOARGS(get_orientation),
