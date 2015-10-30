@@ -130,6 +130,7 @@ static int _py_file_to_open_args(
     py_file_def *stream_info = NULL;
     long file_size;
     void *new_memory;
+    PyObject *read_string = NULL;
 
     int result = -1;
 
@@ -169,40 +170,57 @@ static int _py_file_to_open_args(
 
         open_args->flags = FT_OPEN_STREAM;
         open_args->stream = &face->stream;
-    } else {
-        if (PyObject_HasAttrString(py_file_arg, "read") &&
-            (data = PyObject_CallMethod(py_file_arg, "read", ""))) {
-            if (PyBytes_AsStringAndSize(data, &data_ptr, &data_len)) {
-                goto exit;
-            }
 
-            if (face->mem) {
-                free(face->mem);
-            }
-            face->mem = PyMem_Malloc(face->mem_size + data_len);
-            if (face->mem == NULL) {
-                goto exit;
-            }
-            new_memory = face->mem + face->mem_size;
-            face->mem_size += data_len;
-
-            memcpy(new_memory, data_ptr, data_len);
-            open_args->flags = FT_OPEN_MEMORY;
-            open_args->memory_base = new_memory;
-            open_args->memory_size = data_len;
-            open_args->stream = NULL;
-        } else {
-            PyErr_SetString(
-                PyExc_TypeError,
-                "First argument must be a path or file object reading bytes");
-            goto exit;
-        }
+        result = 0;
+        goto exit;
     }
 
-    result = 0;
+    PyErr_Clear();
+
+    read_string = PyUnicode_FromString("read");
+    if (read_string == NULL) {
+        goto exit;
+    }
+
+    if (PyObject_HasAttrString(py_file_arg, "read")) {
+        data = PyObject_CallMethodObjArgs(py_file_arg, read_string, NULL);
+        if (data == NULL) {
+            goto exit;
+        }
+
+        if (PyBytes_AsStringAndSize(data, &data_ptr, &data_len)) {
+            goto exit;
+        }
+
+        if (face->mem) {
+            free(face->mem);
+        }
+        face->mem = PyMem_Malloc(face->mem_size + data_len);
+        if (face->mem == NULL) {
+            goto exit;
+        }
+        new_memory = face->mem + face->mem_size;
+        face->mem_size += data_len;
+
+        memcpy(new_memory, data_ptr, data_len);
+        open_args->flags = FT_OPEN_MEMORY;
+        open_args->memory_base = new_memory;
+        open_args->memory_size = data_len;
+        open_args->stream = NULL;
+
+        result = 0;
+        goto exit;
+    }
 
  exit:
 
+    if (result && !PyErr_Occurred()) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "First argument must be a path or file object reading bytes");
+    }
+
+    Py_XDECREF(read_string);
     Py_XDECREF(py_file);
     Py_XDECREF(data);
 

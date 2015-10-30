@@ -45,7 +45,7 @@ def test_layout():
     assert layout.ink_bbox.ascent == 18.0
     assert layout.ink_bbox.depth == -5.0
 
-    assert tuple(layout.layout_bbox) == (0.0, -6.0, 555.984375, 22.0)
+    assert tuple(layout.layout_bbox)[:3] == (0.0, -6.0, 555.984375)
 
     assert layout.glyph_indices.to_list() == [
         55, 75, 72, 3, 84, 88, 76, 70, 78, 3, 69, 85, 82, 90, 81, 3,

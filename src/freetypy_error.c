@@ -78,8 +78,8 @@ int setup_errors(void) {
     DEF_ERROR(FT_Err_Invalid_Table, 0x08, "broken table", PyExc_ValueError);
     DEF_ERROR(FT_Err_Invalid_Offset, 0x09, "broken offset within table", PyExc_ValueError);
     DEF_ERROR(FT_Err_Array_Too_Large, 0x0A, "array allocation size too large", PyExc_MemoryError);
-    DEF_ERROR(FT_Err_Missing_Module, 0x0B, "missing module", PyExc_RuntimeError);
-    DEF_ERROR(FT_Err_Missing_Property, 0x0C, "missing property", PyExc_KeyError);
+    /* DEF_ERROR(FT_Err_Missing_Module, 0x0B, "missing module", PyExc_RuntimeError); */
+    /* DEF_ERROR(FT_Err_Missing_Property, 0x0C, "missing property", PyExc_KeyError); */
 
     /* glyph/character errors */
 
@@ -173,7 +173,7 @@ int setup_errors(void) {
     DEF_ERROR(FT_Err_Stack_Underflow, 0xA1, "argument stack underflow", PyExc_ValueError);
     DEF_ERROR(FT_Err_Ignore, 0xA2, "ignore", PyExc_ValueError);
     DEF_ERROR(FT_Err_No_Unicode_Glyph_Name, 0xA3, "no Unicode glyph name found", PyExc_ValueError);
-    DEF_ERROR(FT_Err_Glyph_Too_Big, 0xA4, "glyph to big for hinting", PyExc_ValueError);
+    /* DEF_ERROR(FT_Err_Glyph_Too_Big, 0xA4, "glyph to big for hinting", PyExc_ValueError); */
 
     /* BDF errors */
 

@@ -115,11 +115,21 @@ static PyMethodDef module_methods[] = {
     m = Py_InitModule3(
         "_freetypy", module_methods,
         "Freetype bindings");
-    _state.dummy = 0;
 #endif
 
     if (m == NULL) {
         INITERROR;
+    }
+
+    {
+        FT_Int major, minor, patch;
+        char version_string[64];
+
+        FT_Library_Version(ft_library, &major, &minor, &patch);
+        sprintf(version_string, "%d.%d.%d", major, minor, patch);
+        if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
+            INITERROR;
+        }
     }
 
     if (setup_pyutil(m) ||

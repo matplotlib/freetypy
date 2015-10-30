@@ -31,8 +31,12 @@
 # as representing official policies, either expressed or implied, of
 # the FreeBSD Project.
 
+from __future__ import absolute_import
+
 from . import codecs
 
 from ._freetypy import *
+
+from ._freetypy import __freetype_version__
 
 from . import util
