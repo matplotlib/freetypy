@@ -164,7 +164,7 @@ Valid when autohinting is active. Zero otherwise.
 """
 
 Glyph_metrics = """
-The `GlyphMetrics` of the glyph. The returned values depend on the
+The `Glyph_Metrics` of the glyph. The returned values depend on the
 last load flags (see the `Face.load_glyph` method) and can be
 expressed either in 26.6 fractional pixels or font units.
 
