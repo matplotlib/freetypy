@@ -63,7 +63,7 @@ static void
 Py_Bitmap_dealloc(Py_Bitmap* self)
 {
     FT_Bitmap_Done(get_ft_library(), self->x);
-    free(self->x);
+    Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

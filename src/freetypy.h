@@ -50,6 +50,9 @@ either expressed or implied, of the FreeBSD Project.
 FT_Library get_ft_library(void);
 
 
+extern PyObject *freetypy_module;
+
+
 #include "freetypy_error.h"
 #include "pyutil.h"
 

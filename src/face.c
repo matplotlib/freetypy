@@ -239,6 +239,7 @@ Py_Face_dealloc(Py_Face* self)
     FT_Done_Face(self->x);
     Py_XDECREF(self->filename);
     free(self->mem);
+    Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -252,7 +253,8 @@ Py_Face_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self == NULL) {
         return NULL;
     }
-    self->base.owner = NULL;
+    Py_INCREF(freetypy_module);
+    self->base.owner = freetypy_module;
     self->x = NULL;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
     self->mem = NULL;
@@ -285,6 +287,14 @@ Py_Face_init(Py_Face *self, PyObject *args, PyObject *kwds)
     if (ftpy_exc(
             FT_Open_Face(
                 get_ft_library(), &open_args, face_index, &self->x))) {
+        goto exit;
+    }
+
+    if (open_args.stream != NULL) {
+        self->x->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
+    }
+
+    if (ftpy_exc(FT_Set_Char_Size(self->x, 12 * 64, 12 * 64, 72, 72))) {
         goto exit;
     }
 
@@ -967,7 +977,7 @@ Py_Face_set_charmap(Py_Face* self, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    if (map > self->x->num_charmaps) {
+    if (map > (unsigned long)self->x->num_charmaps) {
         PyErr_Format(
             PyExc_ValueError,
             "%lu is greater than the number of charmaps in the face (%d)",

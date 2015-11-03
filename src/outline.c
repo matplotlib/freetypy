@@ -353,6 +353,7 @@ Py_Outline_to_string_cubicto_func(
 typedef struct {
     ftpy_Object base;
     FT_Outline x;
+    int inited;
 } Py_Outline;
 
 
@@ -370,7 +371,10 @@ static PyObject *Py_Outline_Contours_Buffer_cnew(PyObject *owner);
 static void
 Py_Outline_dealloc(Py_Outline* self)
 {
-    FT_Outline_Done(get_ft_library(), &self->x);
+    if (self->inited) {
+        FT_Outline_Done(get_ft_library(), &self->x);
+    }
+    Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -385,6 +389,8 @@ Py_Outline_cnew(FT_Outline *outline)
         return NULL;
     }
 
+    self->inited = 0;
+
     if (ftpy_exc(
             FT_Outline_New(get_ft_library(),
                            outline->n_points,
@@ -394,9 +400,10 @@ Py_Outline_cnew(FT_Outline *outline)
         return NULL;
     }
 
+    self->inited = 1;
+
     if (ftpy_exc(
             FT_Outline_Copy(outline, &self->x))) {
-        FT_Outline_Done(get_ft_library(), &self->x);
         Py_DECREF(self);
         return NULL;
     }
@@ -411,6 +418,7 @@ Py_Outline_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Py_Outline *self;
     self = (Py_Outline *)type->tp_alloc(type, 0);
+    self->inited = 0;
     return (PyObject *)self;
 }
 

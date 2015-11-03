@@ -54,13 +54,7 @@ static const char *qualified_name_to_name(const char *qualified_name)
 static int
 generic_traverse(ftpy_Object *self, visitproc visit, void *arg)
 {
-    int vret;
-
-    if (self->owner) {
-        vret = visit(self->owner, arg);
-        if (vret != 0)
-            return vret;
-    }
+    Py_VISIT(self->owner);
 
     return 0;
 }
@@ -81,7 +75,7 @@ generic_clear(ftpy_Object *self)
 
 void ftpy_Object_dealloc(PyObject* self)
 {
-    generic_clear((ftpy_Object *)self);
+    Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

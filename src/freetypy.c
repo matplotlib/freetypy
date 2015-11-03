@@ -71,6 +71,9 @@ static PyMethodDef module_methods[] = {
 };
 
 
+PyObject *freetypy_module;
+
+
 /* TODO: Hide all exported symbols in the shared library except this one */
 
 #if PY3K
@@ -103,21 +106,19 @@ static PyMethodDef module_methods[] = {
     init_freetypy(void)
 #endif
 {
-    PyObject* m;
-
     if (ftpy_exc(FT_Init_FreeType(&ft_library))) {
        INITERROR;
     }
 
 #if PY3K
-    m = PyModule_Create(&moduledef);
+    freetypy_module = PyModule_Create(&moduledef);
 #else
-    m = Py_InitModule3(
+    freetypy_module = Py_InitModule3(
         "_freetypy", module_methods,
         "Freetype bindings");
 #endif
 
-    if (m == NULL) {
+    if (freetypy_module == NULL) {
         INITERROR;
     }
 
@@ -127,44 +128,45 @@ static PyMethodDef module_methods[] = {
 
         FT_Library_Version(ft_library, &major, &minor, &patch);
         sprintf(version_string, "%d.%d.%d", major, minor, patch);
-        if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
+        if (PyModule_AddStringConstant(
+                freetypy_module, "__freetype_version__", version_string)) {
             INITERROR;
         }
     }
 
-    if (setup_pyutil(m) ||
-        setup_constants(m) ||
-        setup_version(m) ||
+    if (setup_pyutil(freetypy_module) ||
+        setup_constants(freetypy_module) ||
+        setup_version(freetypy_module) ||
         setup_errors() ||
-        setup_BBox(m) ||
-        setup_Bitmap(m) ||
-        setup_Bitmap_Size(m) ||
-        setup_CharIter(m) ||
-        setup_CharMap(m) ||
-        setup_Face(m) ||
-        setup_Glyph(m) ||
-        setup_Glyph_Metrics(m) ||
-        setup_Layout(m) ||
-        setup_Matrix(m) ||
-        setup_Outline(m) ||
-        setup_SfntName(m) ||
-        setup_SfntNames(m) ||
-        setup_Size(m) ||
-        setup_Size_Metrics(m) ||
-        setup_SubGlyph(m) ||
-        setup_SubGlyphs(m) ||
-        setup_TrueType(m) ||
-        setup_TT_Header(m) ||
-        setup_TT_HoriHeader(m) ||
-        setup_TT_OS2(m) ||
-        setup_TT_Pclt(m) ||
-        setup_TT_Postscript(m) ||
-        setup_TT_VertHeader(m) ||
-        setup_Vector(m)
+        setup_BBox(freetypy_module) ||
+        setup_Bitmap(freetypy_module) ||
+        setup_Bitmap_Size(freetypy_module) ||
+        setup_CharIter(freetypy_module) ||
+        setup_CharMap(freetypy_module) ||
+        setup_Face(freetypy_module) ||
+        setup_Glyph(freetypy_module) ||
+        setup_Glyph_Metrics(freetypy_module) ||
+        setup_Layout(freetypy_module) ||
+        setup_Matrix(freetypy_module) ||
+        setup_Outline(freetypy_module) ||
+        setup_SfntName(freetypy_module) ||
+        setup_SfntNames(freetypy_module) ||
+        setup_Size(freetypy_module) ||
+        setup_Size_Metrics(freetypy_module) ||
+        setup_SubGlyph(freetypy_module) ||
+        setup_SubGlyphs(freetypy_module) ||
+        setup_TrueType(freetypy_module) ||
+        setup_TT_Header(freetypy_module) ||
+        setup_TT_HoriHeader(freetypy_module) ||
+        setup_TT_OS2(freetypy_module) ||
+        setup_TT_Pclt(freetypy_module) ||
+        setup_TT_Postscript(freetypy_module) ||
+        setup_TT_VertHeader(freetypy_module) ||
+        setup_Vector(freetypy_module)
         )
         INITERROR;
 
     #if PY3K
-    return m;
+    return freetypy_module;
     #endif
 }

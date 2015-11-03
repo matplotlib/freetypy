@@ -60,9 +60,11 @@ static PyTypeObject Py_Glyph_Type;
 static void
 Py_Glyph_dealloc(Py_Glyph* self)
 {
-    Py_TYPE(self)->tp_clear((PyObject *)self);
     free(self->x);
-    FT_Done_Glyph(self->glyph);
+    if (self->glyph) {
+        FT_Done_Glyph(self->glyph);
+    }
+    Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -83,6 +85,9 @@ Py_Glyph_cnew(FT_GlyphSlot glyph_slot, PyObject *owner, int load_flags)
         return NULL;
     }
 
+    self->x = NULL;
+    self->glyph = NULL;
+
     glyph_slot_copy = PyMem_Malloc(sizeof(FT_GlyphSlotRec));
     if (glyph_slot_copy == NULL) {
         Py_DECREF(self);
@@ -90,9 +95,16 @@ Py_Glyph_cnew(FT_GlyphSlot glyph_slot, PyObject *owner, int load_flags)
     }
     memcpy(glyph_slot_copy, glyph_slot, sizeof(FT_GlyphSlotRec));
     self->x = glyph_slot_copy;
-    self->glyph = glyph;
+
+    if (ftpy_exc(FT_Glyph_Copy(glyph, &self->glyph))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    FT_Done_Glyph(glyph);
+
     Py_INCREF(owner);
     self->base.owner = owner;
+
     return (PyObject *)self;
 }
 
@@ -107,6 +119,7 @@ Py_Glyph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
     self->x = NULL;
+    self->glyph = NULL;
     return (PyObject *)self;
 }
 
