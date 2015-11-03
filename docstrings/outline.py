@@ -79,6 +79,21 @@ If using numpy, you may want to use this as a Numpy array as follows::
     >>> a = np.asarray(outline.contours)
 """
 
+Outline_decomposed_points = """
+A `memoryview` of decomposed points in the outline.  Each entry is an
+(x, y) pair.
+"""
+
+Outline_codes = """
+A `memoryview` of codes for the decomposed points in the outline.
+Each entry is one of:
+
+- 1: MOVETO (1 point)
+- 2: LINETO (1 point)
+- 3: CONIC (2 points)
+- 4: CUBIC (3 points)
+"""
+
 Outline_flags = """
 A set of `OUTLINE` flags used to characterize the outline.  Gives
 hints to the scan-converter and hinter on how to convert/grid-fit it.
@@ -265,6 +280,23 @@ It shouldn't be used by a normal client application, unless it knows
 what it is doing.
 """
 
+Outline_to_points_and_codes = """
+|freetypy| Convert the outline to a pair of arrays (points, codes).
+
+- points is an Nx2 array of floats for each point
+- codes in a length N array of `CODES` constants:
+
+  - 0: `MOVETO` (1 point)
+  - 1: `LINETO` (1 point)
+  - 2: `CUBIC` (2 points)
+  - 3: `CONIC` (3 points)
+
+Returns
+-------
+arrays : tuple
+    A (points, codes) pair
+"""
+
 Outline_to_string = """
 |freetypy| Convert the outline to a text format string of commands.
 This function is flexible enough to create path commands for PDF,
@@ -285,6 +317,13 @@ conic_command : bytes, optional
     The character or command to use for "conic curve" commands.  If
     one is not provided, conic curves will be implicitly converted to
     cubic curves.
+
+relative : bool, optional
+
+
+prefix : bool, optional
+    If `True`, the command will appear before the points it refers to.
+    Otherwise, the default is for them to appear after.
 
 Returns
 -------
@@ -402,4 +441,13 @@ Values to specify how an outline is oriented.
 
 - `NONE`: The orientation cannot be determined. That is, different
   parts of the glyph have different orientation.
+"""
+
+CODES = """
+Codes returned by `Outline.to_points_and_codes`:
+
+- 1: `MOVETO` (1 point)
+- 2: `LINETO` (1 point)
+- 3: `CONIC` (2 points)
+- 4: `CUBIC` (3 points)
 """

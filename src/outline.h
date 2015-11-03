@@ -33,6 +33,15 @@ either expressed or implied, of the FreeBSD Project.
 #include "freetypy.h"
 
 
+typedef enum {
+    CODE_STOP,
+    CODE_MOVETO,
+    CODE_LINETO,
+    CODE_CONIC,
+    CODE_CUBIC
+} e_codes;
+
+
 PyObject *
 Py_Outline_cnew(FT_Outline *Outline);
 

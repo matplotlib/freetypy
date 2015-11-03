@@ -80,6 +80,7 @@ Outline
    Outline
    OUTLINE
    ORIENTATION
+   CODES
 
 CharMap
 -------

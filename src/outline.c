@@ -46,6 +46,7 @@ either expressed or implied, of the FreeBSD Project.
 
 ftpy_ConstantType Py_FT_ORIENTATION_ConstantType;
 ftpy_BitflagType Py_FT_OUTLINE_BitflagType;
+ftpy_ConstantType Py_FT_CODES_ConstantType;
 
 
 /****************************************************************************
@@ -86,8 +87,8 @@ Py_Outline_moveto_func(const FT_Vector *to, void *user)
 {
     DecomposeData *data = (DecomposeData *)user;
     PyObject *obj = data->callback;
-    double x = to->x;
-    double y = to->y;
+    double x = FROM_F26DOT6(to->x);
+    double y = FROM_F26DOT6(to->y);
 
     if (PyObject_CallMethod(obj, "move_to", "((dd))", x, y) == NULL) {
         return 0x6;
@@ -104,8 +105,8 @@ Py_Outline_lineto_func(const FT_Vector *to, void *user)
 {
     DecomposeData *data = (DecomposeData *)user;
     PyObject *obj = data->callback;
-    double x = to->x;
-    double y = to->y;
+    double x = FROM_F26DOT6(to->x);
+    double y = FROM_F26DOT6(to->y);
 
     if (PyObject_CallMethod(obj, "line_to", "((dd))", x, y) == NULL) {
         return 0x6;
@@ -122,10 +123,10 @@ Py_Outline_conicto_func(const FT_Vector *control, const FT_Vector *to, void *use
 {
     DecomposeData *data = (DecomposeData *)user;
     PyObject *obj = data->callback;
-    double xc = control->x;
-    double yc = control->y;
-    double x = to->x;
-    double y = to->y;
+    double xc = FROM_F26DOT6(control->x);
+    double yc = FROM_F26DOT6(control->y);
+    double x = FROM_F26DOT6(to->x);
+    double y = FROM_F26DOT6(to->y);
     FT_Pos xc0, yc0, xc1, yc1, xc2, yc2;
 
     if (data->has_conic_to) {
@@ -157,12 +158,12 @@ Py_Outline_cubicto_func(
 {
     DecomposeData *data = (DecomposeData *)user;
     PyObject *obj = data->callback;
-    double xc1 = control1->x;
-    double yc1 = control1->y;
-    double xc2 = control2->x;
-    double yc2 = control2->y;
-    double x = to->x;
-    double y = to->y;
+    double xc1 = FROM_F26DOT6(control1->x);
+    double yc1 = FROM_F26DOT6(control1->y);
+    double xc2 = FROM_F26DOT6(control2->x);
+    double yc2 = FROM_F26DOT6(control2->y);
+    double x = FROM_F26DOT6(to->x);
+    double y = FROM_F26DOT6(to->y);
 
     if (PyObject_CallMethod(obj, "cubic_to", "((dd)(dd)(dd))",
             xc1, yc1, xc2, yc2, x, y) == NULL) {
@@ -185,6 +186,7 @@ typedef struct {
     char *cubic_command;
     char *conic_command;
     int relative;
+    int prefix;
     double last_x;
     double last_y;
     char *buffer;
@@ -194,13 +196,15 @@ typedef struct {
 
 
 static int
-expand_buffer(
+to_string_expand_buffer(
     DecomposeToStringData *data, size_t len)
 {
-    while (len + 2 + data->cursor > data->buffer_size) {
-        free(data->buffer);
-        data->buffer_size += BUFFER_CHUNK_SIZE;
-        data->buffer = PyMem_Malloc(data->buffer_size);
+    size_t new_len = len + 2 + data->cursor;
+
+    if (new_len > data->buffer_size) {
+        data->buffer_size = (((new_len / BUFFER_CHUNK_SIZE) + 1) *
+                             BUFFER_CHUNK_SIZE);
+        data->buffer = PyMem_Realloc(data->buffer, data->buffer_size);
         if (data->buffer == NULL) {
             return -1;
         }
@@ -217,13 +221,23 @@ append_command_string(
 {
     size_t i;
     size_t len;
-    char buf[64];
+    char *buf;
+
+    if (data->prefix) {
+        len = strlen(command);
+        if (to_string_expand_buffer(data, len)) {
+            return -1;
+        }
+        strncpy(data->buffer + data->cursor, command,
+                data->buffer_size - data->cursor);
+        data->cursor += len;
+    }
 
     for (i = 0; i < npoints; ++i) {
-        PyOS_snprintf(buf, 64, "%ld", points[i]);
+        buf = PyOS_double_to_string(FROM_F26DOT6(points[i]), 'r', 0, 0, NULL);
 
-        len = strlen(buf);
-        if (expand_buffer(data, len)) {
+        len = strnlen(buf, 64);
+        if (to_string_expand_buffer(data, len)) {
             return -1;
         }
 
@@ -231,21 +245,22 @@ append_command_string(
                 data->buffer_size - data->cursor);
         data->cursor += len;
 
+        PyMem_Free(buf);
+
         if (i < npoints - 1) {
             data->buffer[data->cursor++] = ' ';
         }
-
-        data->buffer[data->cursor] = 0;
     }
 
-    len = strlen(command);
-    if (expand_buffer(data, len)) {
-        return -1;
+    if (!data->prefix) {
+        len = strlen(command);
+        if (to_string_expand_buffer(data, len)) {
+            return -1;
+        }
+        strncpy(data->buffer + data->cursor, command,
+                data->buffer_size - data->cursor);
+        data->cursor += len;
     }
-    strncpy(data->buffer + data->cursor, command,
-            data->buffer_size - data->cursor);
-    data->cursor += len;
-    data->buffer[data->cursor] = 0;
 
     return 0;
 }
@@ -345,6 +360,134 @@ Py_Outline_to_string_cubicto_func(
 }
 
 
+typedef struct {
+    double last_x;
+    double last_y;
+    double *points;
+    char *codes;
+    size_t buffer_size;
+    size_t cursor;
+} DecomposeToPointsAndCodesData;
+
+
+static int
+to_points_and_codes_expand_buffer(
+    DecomposeToPointsAndCodesData *data, size_t len)
+{
+    size_t new_len = len + data->cursor;
+
+    if (new_len > data->buffer_size) {
+        data->buffer_size = (((new_len / BUFFER_CHUNK_SIZE) + 1) *
+                             BUFFER_CHUNK_SIZE);
+        data->points = PyMem_Realloc(
+            data->points, data->buffer_size * sizeof(double) * 2);
+        if (data->points == NULL) {
+            return -1;
+        }
+        data->codes = PyMem_Realloc(
+            data->codes, data->buffer_size);
+        if (data->codes == NULL) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
+static int
+append_points_and_codes(
+    DecomposeToPointsAndCodesData *data, const FT_Vector *points,
+    size_t npoints, char code)
+{
+    size_t i;
+
+    if (to_points_and_codes_expand_buffer(data, npoints)) {
+        return -1;
+    }
+
+    for (i = 0; i < npoints; ++i, ++data->cursor) {
+        data->points[data->cursor * 2] = FROM_F26DOT6(points[i].x);
+        data->points[data->cursor * 2 + 1] = FROM_F26DOT6(points[i].y);
+        data->codes[data->cursor] = code;
+    }
+
+    return 0;
+}
+
+
+static int
+Py_Outline_to_points_and_codes_moveto_func(const FT_Vector *to, void *user)
+{
+    DecomposeToPointsAndCodesData *data = (DecomposeToPointsAndCodesData *)user;
+
+    if (append_points_and_codes(data, to, 1, CODE_MOVETO)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_points_and_codes_lineto_func(const FT_Vector *to, void *user)
+{
+    DecomposeToPointsAndCodesData *data = (DecomposeToPointsAndCodesData *)user;
+
+    if (append_points_and_codes(data, to, 1, CODE_LINETO)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_points_and_codes_conicto_func(const FT_Vector *control, const FT_Vector *to, void *user)
+{
+    DecomposeToPointsAndCodesData *data = (DecomposeToPointsAndCodesData *)user;
+    FT_Vector v[2];
+
+    v[0] = *control;
+    v[1] = *to;
+
+    if (append_points_and_codes(data, v, 2, CODE_CONIC)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+static int
+Py_Outline_to_points_and_codes_cubicto_func(
+    const FT_Vector *control1, const FT_Vector *control2,
+    const FT_Vector *to, void *user)
+{
+    DecomposeToPointsAndCodesData *data = (DecomposeToPointsAndCodesData *)user;
+    FT_Vector v[3];
+
+    v[0] = *control1;
+    v[1] = *control2;
+    v[2] = *to;
+
+    if (append_points_and_codes(data, v, 3, CODE_CUBIC)) {
+        return 0x6;
+    }
+
+    data->last_x = to->x;
+    data->last_y = to->y;
+
+    return 0;
+}
+
+
 /****************************************************************************
  Object basics
 */
@@ -354,6 +497,9 @@ typedef struct {
     ftpy_Object base;
     FT_Outline x;
     int inited;
+    double *points;
+    char *codes;
+    size_t n_points;
 } Py_Outline;
 
 
@@ -361,11 +507,15 @@ static PyTypeObject Py_Outline_Type;
 static PyTypeObject Py_Outline_Points_Buffer_Type;
 static PyTypeObject Py_Outline_Tags_Buffer_Type;
 static PyTypeObject Py_Outline_Contours_Buffer_Type;
+static PyTypeObject Py_Outline_Decomposed_Points_Buffer_Type;
+static PyTypeObject Py_Outline_Codes_Buffer_Type;
 
 
 static PyObject *Py_Outline_Points_Buffer_cnew(PyObject *owner);
 static PyObject *Py_Outline_Tags_Buffer_cnew(PyObject *owner);
 static PyObject *Py_Outline_Contours_Buffer_cnew(PyObject *owner);
+static PyObject *Py_Outline_Decomposed_Points_Buffer_cnew(PyObject *owner);
+static PyObject *Py_Outline_Codes_Buffer_cnew(PyObject *owner);
 
 
 static void
@@ -374,6 +524,8 @@ Py_Outline_dealloc(Py_Outline* self)
     if (self->inited) {
         FT_Outline_Done(get_ft_library(), &self->x);
     }
+    PyMem_Free(self->points);
+    PyMem_Free(self->codes);
     Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -389,6 +541,8 @@ Py_Outline_cnew(FT_Outline *outline)
         return NULL;
     }
 
+    self->points = NULL;
+    self->codes = NULL;
     self->inited = 0;
 
     if (ftpy_exc(
@@ -419,6 +573,8 @@ Py_Outline_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_Outline *self;
     self = (Py_Outline *)type->tp_alloc(type, 0);
     self->inited = 0;
+    self->points = 0;
+    self->codes = 0;
     return (PyObject *)self;
 }
 
@@ -627,6 +783,67 @@ Py_Outline_transform(Py_Outline* self, PyObject* args, PyObject* kwds)
 
 
 static PyObject*
+Py_Outline_to_points_and_codes(Py_Outline* self, PyObject* args, PyObject* kwds)
+{
+    PyObject *result = NULL;
+    PyObject *points = NULL;
+    PyObject *codes = NULL;
+    DecomposeToPointsAndCodesData data;
+    const FT_Outline_Funcs funcs = {
+        .move_to = Py_Outline_to_points_and_codes_moveto_func,
+        .line_to = Py_Outline_to_points_and_codes_lineto_func,
+        .conic_to = Py_Outline_to_points_and_codes_conicto_func,
+        .cubic_to = Py_Outline_to_points_and_codes_cubicto_func,
+
+        .shift = 0,
+        .delta = 0
+    };
+    int error;
+
+    if (!self->points || !self->codes) {
+        memset(&data, 0, sizeof(DecomposeToPointsAndCodesData));
+
+        error = FT_Outline_Decompose(&self->x, &funcs, &data);
+        if (PyErr_Occurred()) {
+            PyMem_Free(data.points);
+            PyMem_Free(data.codes);
+            goto exit;
+        } else if (ftpy_exc(error)) {
+            PyMem_Free(data.points);
+            PyMem_Free(data.codes);
+            goto exit;
+        }
+
+        self->points = data.points;
+        self->codes = data.codes;
+        self->n_points = data.cursor;
+    }
+
+    points = Py_Outline_Decomposed_Points_Buffer_cnew((PyObject *)self);
+    if (points == NULL) {
+        goto exit;
+    }
+
+    codes = Py_Outline_Codes_Buffer_cnew((PyObject *)self);
+    if (codes == NULL) {
+        Py_DECREF(points);
+        goto exit;
+    }
+
+    result = Py_BuildValue("(OO)", points, codes);
+    if (result == NULL) {
+        Py_DECREF(points);
+        Py_DECREF(codes);
+        goto exit;
+    }
+
+ exit:
+
+    return result;
+}
+
+
+static PyObject*
 Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
 {
     PyObject *result = NULL;
@@ -644,16 +861,15 @@ Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
 
     const char* keywords[] = {
         "move_command", "line_command", "cubic_command", "conic_command",
-        "relative", NULL};
+        "prefix", NULL};
 
     data.conic_command = NULL;
-    data.relative = 0;
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "sss|si:to_string", (char **)keywords,
             &data.move_command, &data.line_command,
             &data.cubic_command, &data.conic_command,
-            &data.relative)) {
+            &data.prefix)) {
         return NULL;
     }
 
@@ -674,7 +890,7 @@ Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
         goto exit;
     }
 
-    result = PyBytes_FromString(data.buffer);
+    result = PyBytes_FromStringAndSize(data.buffer, data.cursor);
     if (result == NULL) {
         goto exit;
     }
@@ -720,6 +936,7 @@ static PyMethodDef Py_Outline_methods[] = {
     OUTLINE_METHOD_NOARGS(get_orientation),
     OUTLINE_METHOD_NOARGS(reverse),
     OUTLINE_METHOD(to_string),
+    OUTLINE_METHOD_NOARGS(to_points_and_codes),
     OUTLINE_METHOD(transform),
     OUTLINE_METHOD(translate),
     {NULL}  /* Sentinel */
@@ -853,6 +1070,86 @@ static int Py_Outline_Contours_Buffer_get_buffer(
 static PyBufferProcs Py_Outline_Contours_Buffer_procs;
 
 
+static PyObject *
+Py_Outline_Decomposed_Points_Buffer_cnew(PyObject *owner)
+{
+    ftpy_Buffer *self;
+    self = (ftpy_Buffer *)(&Py_Outline_Decomposed_Points_Buffer_Type)->tp_alloc(
+        &Py_Outline_Decomposed_Points_Buffer_Type, 0);
+    Py_INCREF(owner);
+    self->base.owner = owner;
+    return (PyObject *)self;
+}
+
+
+static int Py_Outline_Decomposed_Points_Buffer_get_buffer(ftpy_Buffer *self, Py_buffer *view, int flags)
+{
+    Py_Outline *outline = (Py_Outline *)self->base.owner;
+    size_t itemsize = sizeof(double);
+
+    Py_INCREF(self);
+    view->obj = (PyObject *)self;
+    view->buf = outline->points;
+    view->readonly = 1;
+    view->itemsize = itemsize;
+    view->format = "d";
+    view->len = outline->n_points * 2 * itemsize;
+    view->internal = NULL;
+    view->ndim = 2;
+    view->shape = self->shape;
+    self->shape[0] = outline->n_points;
+    self->shape[1] = 2;
+    view->strides = self->strides;
+    self->strides[0] = itemsize * 2;
+    self->strides[1] = itemsize;
+    view->suboffsets = NULL;
+
+    return 0;
+}
+
+
+static PyBufferProcs Py_Outline_Decomposed_Points_Buffer_procs;
+
+
+static PyObject *
+Py_Outline_Codes_Buffer_cnew(PyObject *owner)
+{
+    ftpy_Buffer *self;
+    self = (ftpy_Buffer *)(&Py_Outline_Codes_Buffer_Type)->tp_alloc(
+        &Py_Outline_Codes_Buffer_Type, 0);
+    Py_INCREF(owner);
+    self->base.owner = owner;
+    return (PyObject *)self;
+}
+
+
+static int Py_Outline_Codes_Buffer_get_buffer(ftpy_Buffer *self, Py_buffer *view, int flags)
+{
+    Py_Outline *outline = (Py_Outline *)self->base.owner;
+    size_t itemsize = sizeof(char);
+
+    Py_INCREF(self);
+    view->obj = (PyObject *)self;
+    view->buf = outline->codes;
+    view->readonly = 1;
+    view->itemsize = itemsize;
+    view->format = "B";
+    view->len = outline->n_points * itemsize;
+    view->internal = NULL;
+    view->ndim = 1;
+    view->shape = self->shape;
+    self->shape[0] = outline->n_points;
+    view->strides = self->strides;
+    self->strides[0] = itemsize;
+    view->suboffsets = NULL;
+
+    return 0;
+}
+
+
+static PyBufferProcs Py_Outline_Codes_Buffer_procs;
+
+
 /****************************************************************************
  Setup
 */
@@ -882,6 +1179,18 @@ static constant_def FT_ORIENTATION_constants[] = {
     ORIENTATION_CONST(FILL_RIGHT),
     ORIENTATION_CONST(FILL_LEFT),
     ORIENTATION_CONST(NONE),
+    {NULL}
+};
+
+
+static PyTypeObject Py_FT_CODES_Type;
+#define CODES_CONST(name) DEF_CONST(name, CODE)
+static constant_def FT_CODES_constants[] = {
+    CODES_CONST(STOP),
+    CODES_CONST(MOVETO),
+    CODES_CONST(LINETO),
+    CODES_CONST(CONIC),
+    CODES_CONST(CUBIC),
     {NULL}
 };
 
@@ -929,6 +1238,24 @@ int setup_Outline(PyObject *m)
         return -1;
     }
 
+    if (ftpy_setup_buffer_type(
+            &Py_Outline_Decomposed_Points_Buffer_Type,
+            "freetypy.Outline.DecomposedPointsBuffer",
+            doc_Outline_decomposed_points,
+            &Py_Outline_Decomposed_Points_Buffer_procs,
+            (getbufferproc)Py_Outline_Decomposed_Points_Buffer_get_buffer)) {
+        return -1;
+    }
+
+    if (ftpy_setup_buffer_type(
+            &Py_Outline_Codes_Buffer_Type,
+            "freetypy.Outline.CodesBuffer",
+            doc_Outline_codes,
+            &Py_Outline_Codes_Buffer_procs,
+            (getbufferproc)Py_Outline_Codes_Buffer_get_buffer)) {
+        return -1;
+    }
+
     if (define_constant_namespace(
             m, &Py_FT_OUTLINE_Type, &Py_FT_OUTLINE_BitflagType,
             "freetypy.OUTLINE",
@@ -937,7 +1264,12 @@ int setup_Outline(PyObject *m)
         define_constant_namespace(
             m, &Py_FT_ORIENTATION_Type, &Py_FT_ORIENTATION_ConstantType,
             "freetypy.ORIENTATION",
-            doc_ORIENTATION, FT_ORIENTATION_constants)) {
+            doc_ORIENTATION, FT_ORIENTATION_constants) ||
+
+        define_constant_namespace(
+            m, &Py_FT_CODES_Type, &Py_FT_CODES_ConstantType,
+            "freetypy.CODES",
+            doc_CODES, FT_CODES_constants)) {
         return -1;
     }
 
