@@ -80,7 +80,19 @@ PyObject *freetypy_module;
     static void
     freetypy_module_dealloc(PyObject *m)
     {
-        FT_Done_FreeType(ft_library);
+        /*
+           This doesn't always work because sometimes this module is
+           freed before all of the Face objects have been destroyed.
+           FT_Done_FreeType will try to free all open FT_Faces, and
+           then the Py_Face destructors will try to free those again.
+           In matplotlib, the old freetype wrapper never called
+           FT_Done_FreeType (and even worse, there was no way to do
+           that from Python 2.x) and it was never a real problem.  So
+           the easiest way to fix this is to just not call this and
+           let the OS clean up on process ending, and let Python free
+           the Face objects as it is done with them.
+        */
+        // FT_Done_FreeType(ft_library);
     }
 
     static struct PyModuleDef moduledef = {
