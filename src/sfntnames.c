@@ -103,6 +103,7 @@ Py_SfntNames_get_name(Py_SfntNames* self, PyObject* args, PyObject* kwds) {
 
     count = FT_Get_Sfnt_Name_Count(face);
 
+    /* Give preference to Unicode names and return those first */
     for (i = 0; i < count; ++i) {
         if (ftpy_exc(
             FT_Get_Sfnt_Name(face, i, &sfnt_name))) {
@@ -124,9 +125,7 @@ Py_SfntNames_get_name(Py_SfntNames* self, PyObject* args, PyObject* kwds) {
         }
 
         if (sfnt_name.name_id == name) {
-            return ftpy_decode(
-                sfnt_name.platform_id, sfnt_name.encoding_id,
-                (const char *)sfnt_name.string, sfnt_name.string_len);
+            return Py_SfntName_cnew((Py_Face *)self->base.owner, i);
         }
     }
 

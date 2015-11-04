@@ -51,5 +51,5 @@ name : int
 
 Returns
 -------
-sfnt_name : unicode or None
+sfnt_name : `SfntName` object
 """
