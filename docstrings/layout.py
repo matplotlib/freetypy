@@ -45,8 +45,8 @@ face : Face
 text : unicode
     The text to display in the layout.
 
-size : float
-    The size of the text, in pixels.
+load_flags : `LOAD` flags, optional
+    Any glyph load flags
 """
 
 Layout_ink_bbox = """
