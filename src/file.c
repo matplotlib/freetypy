@@ -48,7 +48,7 @@ FILE *ftpy_PyFile_Dup(PyObject *file, char *mode, ftpy_offset_t *orig_pos)
 {
     int fd, fd2;
     PyObject *ret, *os;
-    Py_ssize_t pos;
+    ftpy_offset_t pos;
     FILE *handle;
     /* Flush first to ensure things end up in the file in the correct order */
     ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
@@ -121,7 +121,7 @@ int ftpy_PyFile_DupClose(PyObject *file, FILE* handle, ftpy_offset_t orig_pos)
 {
     int fd;
     PyObject *ret;
-    Py_ssize_t position;
+    ftpy_offset_t position;
 
     position = ftpy_ftell(handle);
     fclose(handle);
@@ -195,12 +195,10 @@ PyObject* ftpy_PyFile_OpenFile(PyObject *filename, const char *mode)
 
     open = PyDict_GetItemString(builtins, "open");
     if (open == NULL) {
-        Py_DECREF(builtins);
         PyErr_SetString(PyExc_AttributeError,
                         "Internal error: could not get open function");
         return NULL;
     }
-    Py_DECREF(builtins);
 
     return PyObject_CallFunction(open, "Os", filename, mode);
 }
