@@ -32,6 +32,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include "freetypy.h"
 #include "constants.h"
+#include "file.h"
 
 
 typedef struct {
@@ -42,6 +43,12 @@ typedef struct {
     size_t mem_size;
     PyObject *filename;
     int load_flags;
+
+    /* For stream reading */
+    PyObject *py_file;
+    FILE *fp;
+    int close_file;
+    ftpy_offset_t offset;
 } Py_Face;
 
 

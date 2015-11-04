@@ -44,14 +44,14 @@ either expressed or implied, of the FreeBSD Project.
 /*
  * Get a FILE* handle to the file represented by the Python object
  */
-FILE *ftpy_PyFile_Dup(PyObject *file, char *mode)
+FILE *ftpy_PyFile_Dup(PyObject *file, char *mode, ftpy_offset_t *orig_pos)
 {
     int fd, fd2;
     PyObject *ret, *os;
     Py_ssize_t pos;
     FILE *handle;
     /* Flush first to ensure things end up in the file in the correct order */
-    ret = PyObject_CallMethod(file, "flush", "");
+    ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
     if (ret == NULL) {
         return NULL;
     }
@@ -60,17 +60,22 @@ FILE *ftpy_PyFile_Dup(PyObject *file, char *mode)
     if (fd == -1) {
         return NULL;
     }
+
+    /* The handle needs to be dup'd because we have to call fclose
+       at the end */
     os = PyImport_ImportModule("os");
     if (os == NULL) {
         return NULL;
     }
-    ret = PyObject_CallMethod(os, "dup", "i", fd);
+    ret = PyObject_CallMethod(os, (char *)"dup", (char *)"i", fd);
     Py_DECREF(os);
     if (ret == NULL) {
         return NULL;
     }
     fd2 = PyNumber_AsSsize_t(ret, NULL);
     Py_DECREF(ret);
+
+/* Convert to FILE* handle */
 #ifdef _WIN32
     handle = _fdopen(fd2, mode);
 #else
@@ -80,7 +85,16 @@ FILE *ftpy_PyFile_Dup(PyObject *file, char *mode)
         PyErr_SetString(PyExc_IOError,
                         "Getting a FILE* from a Python file object failed");
     }
-    ret = PyObject_CallMethod(file, "tell", "");
+
+    /* Record the original raw file handle position */
+    *orig_pos = ftpy_ftell(handle);
+    if (*orig_pos == -1) {
+        // handle is a stream, so we don't have to worry about this
+        return handle;
+    }
+
+    /* Seek raw handle to the Python-side position */
+    ret = PyObject_CallMethod(file, (char *)"tell", (char *)"");
     if (ret == NULL) {
         fclose(handle);
         return NULL;
@@ -91,25 +105,48 @@ FILE *ftpy_PyFile_Dup(PyObject *file, char *mode)
         fclose(handle);
         return NULL;
     }
-    fseek(handle, pos, SEEK_SET);
+
+    if (ftpy_fseek(handle, pos, SEEK_SET) == -1) {
+        PyErr_SetString(PyExc_IOError, "seeking file failed");
+        return NULL;
+    }
+
     return handle;
 }
 
 /*
  * Close the dup-ed file handle, and seek the Python one to the current position
  */
-int ftpy_PyFile_DupClose(PyObject *file, FILE* handle)
+int ftpy_PyFile_DupClose(PyObject *file, FILE* handle, ftpy_offset_t orig_pos)
 {
+    int fd;
     PyObject *ret;
     Py_ssize_t position;
-    position = ftell(handle);
+
+    position = ftpy_ftell(handle);
     fclose(handle);
 
-    ret = PyObject_CallMethod(file, "seek", "ni", position, 0);
-    if (ret == NULL) {
+    /* Restore original file handle position, in order to not confuse
+       Python-side data structures */
+    fd = PyObject_AsFileDescriptor(file);
+    if (fd == -1) {
         return -1;
     }
-    Py_DECREF(ret);
+
+    if (ftpy_lseek(fd, orig_pos, SEEK_SET) != -1) {
+        if (position == -1) {
+            PyErr_SetString(PyExc_IOError, "obtaining file position failed");
+            return -1;
+        }
+
+        /* Seek Python-side handle to the FILE* handle position */
+        ret = PyObject_CallMethod(file, (char *)"seek", (char *)(FTPY_OFF_T_PYFMT "i"), position, 0);
+        if (ret == NULL) {
+            return -1;
+        }
+        Py_DECREF(ret);
+    }
+
     return 0;
 }
 
@@ -128,14 +165,20 @@ int ftpy_PyFile_Check(PyObject *file)
 
 /* Python 2.x */
 
-FILE* ftpy_PyFile_Dup(PyObject *file, char *mode)
+FILE* ftpy_PyFile_Dup(PyObject *file, char *mode, ftpy_offset_t *orig_pos)
 {
     return PyFile_AsFile(file);
 }
 
-int ftpy_PyFile_DupClose(PyObject *file, FILE* handle)
+int ftpy_PyFile_DupClose(PyObject *file, FILE* handle, ftpy_offset_t orig_pos)
 {
+    // deliberately nothing
     return 0;
+}
+
+int ftpy_PyFile_Check(PyObject *file)
+{
+    return PyFile_Check(file);
 }
 
 #endif

@@ -36,7 +36,6 @@ either expressed or implied, of the FreeBSD Project.
 #include "charmap.h"
 #include "constants.h"
 #include "encoding.h"
-#include "file.h"
 #include "glyph.h"
 #include "sfntnames.h"
 #include "size.h"
@@ -71,26 +70,18 @@ ftpy_ConstantType Py_FT_KERNING_ConstantType;
 */
 
 
-typedef struct
-{
-    PyObject *py_file;
-    FILE *fp;
-    int close_file;
-} py_file_def;
-
-
 static unsigned long read_from_file_callback(
     FT_Stream stream, unsigned long offset, unsigned char *buffer,
     unsigned long count) {
 
-    py_file_def *def = (py_file_def *)stream->descriptor.pointer;
+    Py_Face *self = (Py_Face *)stream->descriptor.pointer;
 
-    if (fseek(def->fp, offset, SEEK_SET) == -1) {
+    if (ftpy_fseek(self->fp, offset, SEEK_SET) == -1) {
         return 0;
     }
 
     if (count > 0) {
-        return fread(buffer, 1, count, def->fp);
+        return fread(buffer, 1, count, self->fp);
     }
 
     return 0;
@@ -99,15 +90,16 @@ static unsigned long read_from_file_callback(
 
 static void close_file_callback(FT_Stream stream)
 {
-    py_file_def *def = (py_file_def *)stream->descriptor.pointer;
+    Py_Face *self = (Py_Face *)stream->descriptor.pointer;
 
-    ftpy_PyFile_DupClose(def->py_file, def->fp);
+    ftpy_PyFile_DupClose(self->py_file, self->fp, self->offset);
 
-    if (def->close_file) {
-        ftpy_PyFile_CloseFile(def->py_file);
+    if (self->close_file) {
+        ftpy_PyFile_CloseFile(self->py_file);
     }
 
-    Py_DECREF(def->py_file);
+    Py_DECREF(self->py_file);
+    self->py_file = NULL;
 }
 
 
@@ -127,10 +119,10 @@ static int _py_file_to_open_args(
     PyObject *data = NULL;
     char *data_ptr;
     Py_ssize_t data_len;
-    py_file_def *stream_info = NULL;
     long file_size;
     void *new_memory;
     PyObject *read_string = NULL;
+    ftpy_offset_t offset;
 
     int result = -1;
 
@@ -146,25 +138,20 @@ static int _py_file_to_open_args(
         py_file = py_file_arg;
     }
 
-    if ((fp = ftpy_PyFile_Dup(py_file, (char *)"rb"))) {
-        stream_info = PyMem_Malloc(sizeof(py_file_def));
-        if (stream_info == NULL) {
-            goto exit;
-        }
-        memset(stream_info, 0, sizeof(py_file_def));
-
+    if ((fp = ftpy_PyFile_Dup(py_file, (char *)"rb", &offset))) {
         Py_INCREF(py_file);
-        stream_info->py_file = py_file;
-        stream_info->close_file = close_file;
-        stream_info->fp = fp;
+        face->py_file = py_file;
+        face->close_file = close_file;
+        face->fp = fp;
+        face->offset = offset;
         fseek(fp, 0, SEEK_END);
-        file_size = ftell(fp);
+        file_size = ftpy_ftell(fp);
         fseek(fp, 0, SEEK_SET);
 
         face->stream.base = NULL;
         face->stream.size = (unsigned long)file_size;
         face->stream.pos = 0;
-        face->stream.descriptor.pointer = stream_info;
+        face->stream.descriptor.pointer = face;
         face->stream.read = &read_from_file_callback;
         face->stream.close = &close_file_callback;
 
@@ -236,7 +223,10 @@ static int _py_file_to_open_args(
 static void
 Py_Face_dealloc(Py_Face* self)
 {
-    FT_Done_Face(self->x);
+    if (self->x) {
+        FT_Done_Face(self->x);
+    }
+    Py_XDECREF(self->py_file);
     Py_XDECREF(self->filename);
     free(self->mem);
     Py_TYPE(self)->tp_clear((PyObject*)self);

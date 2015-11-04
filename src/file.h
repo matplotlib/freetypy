@@ -34,8 +34,46 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <stdio.h>
 
-FILE* ftpy_PyFile_Dup(PyObject *file, char *mode);
-int ftpy_PyFile_DupClose(PyObject *file, FILE* handle);
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if defined(_MSC_VER) && defined(_WIN64) && (_MSC_VER > 1400)
+    #include <io.h>
+    #define ftpy_offset_t npy_int64
+    #define ftpy_fseek _fseeki64
+    #define ftpy_ftell _ftelli64
+    #define ftpy_lseek _lseeki64
+
+    #if NPY_SIZEOF_INT == 8
+        #define FTPY_OFF_T_PYFMT "i"
+    #elif NPY_SIZEOF_LONG == 8
+        #define FTPY_OFF_T_PYFMT "l"
+    #elif NPY_SIZEOF_LONGLONG == 8
+        #define FTPY_OFF_T_PYFMT "L"
+    #else
+        #error Unsupported size for type off_t
+    #endif
+#else
+    #define ftpy_fseek fseek
+    #define ftpy_ftell ftell
+    #define ftpy_lseek lseek
+    #define ftpy_offset_t off_t
+
+    #if NPY_SIZEOF_INT == NPY_SIZEOF_SHORT
+        #define FTPY_OFF_T_PYFMT "h"
+    #elif NPY_SIZEOF_INT == NPY_SIZEOF_INT
+        #define FTPY_OFF_T_PYFMT "i"
+    #elif NPY_SIZEOF_INT == NPY_SIZEOF_LONG
+        #define FTPY_OFF_T_PYFMT "l"
+    #elif NPY_SIZEOF_INT == NPY_SIZEOF_LONGLONG
+        #define FTPY_OFF_T_PYFMT "L"
+    #else
+        #error Unsupported size for type off_t
+    #endif
+#endif
+
+FILE* ftpy_PyFile_Dup(PyObject *file, char *mode, ftpy_offset_t *orig_pos);
+int ftpy_PyFile_DupClose(PyObject *file, FILE* handle, ftpy_offset_t orig_pos);
 int ftpy_PyFile_Check(PyObject *file);
 PyObject* ftpy_PyFile_OpenFile(PyObject *filename, const char *mode);
 int ftpy_PyFile_CloseFile(PyObject *file);
