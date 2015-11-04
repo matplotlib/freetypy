@@ -354,17 +354,46 @@ PyObject *ftpy_decode(
 
 
 int ftpy_get_charcode_from_unicode(
-    PyObject *py_unicode, unsigned short platform_id,
+    PyObject *input, unsigned short platform_id,
     unsigned short encoding_id, unsigned long *charcode)
 {
     const char *encoding;
     const char *fallback_encoding;
+    PyObject *py_unicode = NULL;
     PyObject *py_bytes = NULL;
     char *bytes;
     Py_ssize_t bytes_size;
     int result = -1;
 
-    if (!PyUnicode_Check(py_unicode)) {
+    #if PY_MAJOR_VERSION == 2
+    Py_UNICODE numeric_value = 0;
+    if (PyLong_Check(input)) {
+        numeric_value = (Py_UNICODE)PyLong_AsLong(input);
+        if (PyErr_Occurred()) {
+            goto exit;
+        }
+        py_unicode = PyUnicode_FromUnicode(&numeric_value, 1);
+    } else if (PyInt_Check(input)) {
+        numeric_value = (Py_UNICODE)PyInt_AsLong(input);
+        if (PyErr_Occurred()) {
+            goto exit;
+        }
+        py_unicode = PyUnicode_FromUnicode(&numeric_value, 1);
+    }
+    #else // Python 3
+    Py_UCS4 numeric_value = 0;
+    if (PyLong_Check(input)) {
+        numeric_value = (Py_UCS4)PyLong_AsLong(input);
+        if (PyErr_Occurred()) {
+            goto exit;
+        }
+        py_unicode = PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, &numeric_value, 1);
+    }
+    #endif
+    else if (PyUnicode_Check(input)) {
+        Py_INCREF(input);
+        py_unicode = input;
+    } else {
         PyErr_SetString(
             PyExc_TypeError,
             "Must be a single-character unicode string");
@@ -418,6 +447,7 @@ int ftpy_get_charcode_from_unicode(
     result = 0;
  exit:
 
+    Py_XDECREF(py_unicode);
     Py_XDECREF(py_bytes);
     return result;
 }

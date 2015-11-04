@@ -135,7 +135,7 @@ map, if possible.
 
 Parameters
 ----------
-charcode : length-1 unicode string
+charcode : length-1 unicode string or int
     The Unicode character.
 
 Returns
@@ -420,7 +420,7 @@ map, if possible.
 
 Parameters
 ----------
-char_code : unicode character (1-element unicode string)
+char_code : unicode character (1-element unicode string) or int
     The unicode character.
 
 load_flags : int, optional
