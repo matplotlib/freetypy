@@ -34,7 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 SfntNames__init__ = """
-A sequence of SFNT names in the face.
+A sequence of SFNT names in a `Face`.
 """
 
 SfntNames_get_name = """

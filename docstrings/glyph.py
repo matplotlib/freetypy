@@ -34,7 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 Glyph__init__ = """
-Contains information pertaining to a single glyph.
+Information pertaining to a single glyph.
 
 Notes
 -----
@@ -220,7 +220,7 @@ Empty unless `format` is `GLYPH_FORMAT.COMPOSITE`.
 """
 
 GLYPH_BBOX = """
-The mode how the values of `Glyph.get_cbox` are returned.
+Indicates how the values of `Glyph.get_cbox` are returned.
 
 - `UNSCALED`: Return unscaled font units.
 
@@ -234,10 +234,11 @@ The mode how the values of `Glyph.get_cbox` are returned.
 """
 
 GLYPH_FORMAT = """
-An enumeration type used to describe the format of a given glyph
-image. Note that this version of FreeType only supports two image
-formats, even though future font drivers will be able to register
-their own format.
+Describes the format of a given glyph image.
+
+Note that this version of FreeType only supports two image formats,
+even though future font drivers will be able to register their own
+format.
 
 - `NONE`: The value 0 is reserved.
 
@@ -259,7 +260,7 @@ their own format.
 """
 
 RENDER_MODE = """
-A set of enumerations to select a bitmap renderer.
+Selects a `Bitmap` renderer.
 
 - `NORMAL`: This is the default render mode; it corresponds to 8-bit
   anti-aliased bitmaps.

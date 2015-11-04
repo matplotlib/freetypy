@@ -58,7 +58,7 @@ TT_Header_flags = """
 """
 
 TT_HEADER_FLAGS = """
-|freetypy| Bitflags giving global information about the font.
+|freetypy| Bit flags for global information about a `Face`.
 
 - `BASELINE_AT_ZERO`: If set, the baselines for the font is at *y* = 0
   (that is, the *x*-axis)
@@ -123,7 +123,7 @@ TT_Header_mac_style = """
 """
 
 TT_MAC_STYLE = """
-Bit flags indicating the style of the face.
+Bit flags for the style of the face.
 
 - `BOLD`
 

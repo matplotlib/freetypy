@@ -35,7 +35,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 
 Layout__init__ = """
-|freetypy| This class handles very simple layout of left-to-right text.
+|freetypy| Manages very simple layout of left-to-right text.
 
 Parameters
 ----------

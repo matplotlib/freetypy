@@ -35,8 +35,9 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 
 TT_Pclt__init__ = """
-A structure used to model a TrueType PCLT table. All fields comply to
-the TrueType specification.
+TrueType PCLT table.
+
+All fields comply to the TrueType specification.
 
 This field is discouraged in OpenType and modern TrueType fonts, so it
 should be used sparingly and not assumed to be available.

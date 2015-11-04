@@ -34,8 +34,9 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 Bitmap_Size__init__ = """
-Models the metrics of a bitmap strike in a bitmap font. It is used for
-`Face.available_sizes`.
+The metrics of a bitmap strike in a bitmap `Face`.
+
+It is used for `Face.available_sizes`.
 """
 
 Bitmap_Size_height = """

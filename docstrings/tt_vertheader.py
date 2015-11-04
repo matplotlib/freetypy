@@ -68,7 +68,7 @@ The table version.
 """
 
 TT_VertHeader__init__ = """
-A structure used to model a TrueType vertical header (‘vhea’).
+TrueType vertical header (‘vhea’).
 """
 
 TT_VertHeader_advance_height_max = """

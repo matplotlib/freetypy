@@ -59,7 +59,7 @@ The subglyph transformation (if any).
 """
 
 SUBGLYPH_FLAG = """
-A list of constants used to describe subglyphs.
+Describes subglyphs.
 
 - `ARGS_ARE_WORDS`: If set, `SubGlyph.arg1` and `SubGlyph.arg2`
   are words, else bytes.

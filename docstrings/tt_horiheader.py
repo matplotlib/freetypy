@@ -68,7 +68,7 @@ The table version.
 """
 
 TT_HoriHeader__init__ = """
-A structure used to model a TrueType horizontal header (‘hhea’).
+TrueType horizontal header (‘hhea’).
 """
 
 TT_HoriHeader_advance_width_max = """

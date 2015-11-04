@@ -35,7 +35,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 
 TT_PLATFORM = """
-A set of platform identifier codes.
+Platform identifier codes.
 
 - `APPLE_UNICODE`: Used by Apple to indicate a Unicode character map
   and/or name entry. See `TT_APPLE_ID` for corresponding ‘encoding_id’
@@ -144,9 +144,10 @@ Macintosh-specific encoding values.
 """
 
 TT_MAC_LANGID = """
-Possible values of the language identifier field in the name records
-of the TTF "name" table if the "platform" identifier code is
-`TT_PLATFORM.MACINTOSH`.
+Language identifier.
+
+Used in the name records of the TTF "name" table if the "platform"
+identifier code is `TT_PLATFORM.MACINTOSH`.
 """
 
 TT_MS_ID = """
@@ -176,13 +177,14 @@ Microsoft-specific encoding values.
 """
 
 TT_MS_LANGID = """
-Possible values of the language identifier field in the name records
-of the TTF "name" table if the "platform" identifier code is
-`TT_PLATFORM.MICROSOFT`.
+Language identifier.
+
+Used in in the name records of the TTF "name" table if the "platform"
+identifier code is `TT_PLATFORM.MICROSOFT`.
 """
 
 TT_NAME_ID = """
-Indicates the type of value stored in a `SfntName` record.
+The type of value stored in a `SfntName` record.
 
 - `COPYRIGHT`
 - `FONT_FAMILY`

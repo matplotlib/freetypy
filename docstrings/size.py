@@ -34,7 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 Size__init__ = """
-A size object models a face object at a given size.
+A `Face` object at a given size.
 """
 
 Size_face = """

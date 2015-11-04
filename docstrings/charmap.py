@@ -34,8 +34,9 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 CharMap__init__ = """
-A mapping from code points to glyph identifiers. Some font formats may
-provide several `CharMap` instances per font.
+A mapping from code points to glyph identifiers.
+
+Some font formats may provide several `CharMap` instances per font.
 
 Each face object owns zero or more charmaps, but only one of them can
 be ‘active’ and used by `Face.get_char_index` or `Face.load_char`.

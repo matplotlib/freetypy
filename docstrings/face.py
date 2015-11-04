@@ -34,7 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 Face__init__ = """
-A face object models a given typeface, in a given style.
+Models a given typeface, in a given style.
 
 Parameters
 ----------
@@ -711,7 +711,7 @@ fonts. Only relevant for scalable formats.
 """
 
 FACE_FLAG = """
-A set of bit flags that give important information about the face.
+Bit flags for important metadata about a `Face`.
 
 - `SCALABLE`: Indicates that the face contains outline glyphs. This
   doesn't prevent bitmap strikes, i.e., a face can have both this and
@@ -786,7 +786,7 @@ A set of bit flags that give important information about the face.
 """
 
 STYLE_FLAG = """
-Bit flags to indicate the style of a given face.
+Bit flags indicating the style of a `Face`.
 
 - `ITALIC`: Indicates that a given face style is italic
   or oblique.
@@ -795,10 +795,11 @@ Bit flags to indicate the style of a given face.
 """
 
 LOAD = """
-A flag indicating what to load for this glyph. The `LOAD` constants
-can be used to control the glyph loading process (e.g., whether the
-outline should be scaled, whether to load bitmaps or not, whether to
-hint the outline, etc).
+Indicates what to load for a glyph.
+
+The `LOAD` constants can be used to control the glyph loading process
+(e.g., whether the outline should be scaled, whether to load bitmaps
+or not, whether to hint the outline, etc).
 
 - `DEFAULT`: Corresponding to 0, this value is used as the default
   glyph load operation. In this case, the following happens:
@@ -932,7 +933,7 @@ hinter.
 """
 
 SIZE_REQUEST_TYPE = """
-Modes for selecting the size of a bitmap font.
+Modes for selecting the size of a bitmap `Face`.
 
 - `NOMINAL`: The nominal size. The `Face.units_per_em` is used to
   determine both scaling values.
@@ -959,8 +960,8 @@ formats, the behaviour is up to the driver.
 """
 
 FSTYPE = """
-A list of bit flags indicating the embedding and subsetting
-restrictions with a font.
+Bit flags indicating the embedding and subsetting
+restrictions of a `Face`.
 
 - `INSTALLABLE_EMBEDDING`: Fonts with no fsType bit set may be
   embedded and permanently installed on the remote system by an

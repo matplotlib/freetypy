@@ -34,8 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 TT_OS2__init__ = """
-Information about the TrueType font, used on OS/2 and Microsoft
-Windows.
+Inf about the TrueType font, used on OS/2 and Microsoft Windows.
 
 Note that we now support old Mac fonts which do not include an OS/2
 table.  In this case, the `version` field is always set to 0xFFFF.
@@ -323,7 +322,7 @@ A `TT_FS_SELECTION` bitflag.
 """
 
 TT_FS_SELECTION = """
-Bitflag concerning the nature of the font patterns.
+Bit flag for font style.
 
 - `ITALIC`
 

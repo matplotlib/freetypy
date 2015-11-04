@@ -35,7 +35,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 
 TT_Postscript__init__ = """
-A TrueType PostScript table.
+TrueType PostScript table.
 """
 
 TT_Postscript_format_type = """

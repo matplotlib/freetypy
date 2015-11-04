@@ -34,7 +34,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 Bitmap__init__ = """
-A structure used to describe a bitmap or pixmap to the raster.
+Describes a bitmap raster.
 
 `Bitmap` supports the Python buffer interface, so it is easy to
 convert it to a Numpy array.  For example::
@@ -111,7 +111,7 @@ The number of pixels in bitmap row.
 """
 
 PIXEL_MODE = """
-Constants related to the pixel mode of bitmaps.
+Constants related to the pixel mode of `Bitmap`.
 
 - `MONO`: A monochrome bitmap, using 1 bit per pixel. Note that pixels
   are stored in most-significant order (MSB), which means that the

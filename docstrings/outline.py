@@ -363,7 +363,7 @@ yOffset : int
 """
 
 OUTLINE = """
-A set of bit flags to characterize an `Outline`.
+Bit flags to characterize an `Outline`.
 
 - `NONE`: Value 0 is reserved.
 
@@ -421,7 +421,7 @@ smart drop-outs, and stubs are defined.
 """
 
 ORIENTATION = """
-Values to specify how an outline is oriented.
+Specifies how an `Outline` is oriented.
 
 - `TRUETYPE`: According to the TrueType specification, clockwise
   contours must be filled, and counter-clockwise ones must be
