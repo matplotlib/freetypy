@@ -240,7 +240,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'freetypy', u'freetypy Documentation',
-   u'Michael Droettboom', 'freetypy', 'Python wrappers for freetype',
+   u'Michael Droettboom', 'freetypy', 'Python wrappers for FreeType',
    'Fonts'),
 ]
 

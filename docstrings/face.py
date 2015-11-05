@@ -346,22 +346,37 @@ The TrueType header (`TT_Header`).
 
 Face_tt_horiheader = """
 The TrueType horizontal header (`TT_HoriHeader`).
+
+Isn't present in all font files.  If missing, `AttributeError` is
+raised.
 """
 
 Face_tt_os2 = """
 The OS/2 TrueType header (`TT_OS2`).
+
+Isn't present in all font files.  If missing, `AttributeError` is
+raised.
 """
 
 Face_tt_pclt = """
 The PCLT header (`TT_Pclt`).
+
+Isn't present in all font files.  If missing, `AttributeError` is
+raised.
 """
 
 Face_tt_postscript = """
 The Postscript header (`TT_Postscript`).
+
+Isn't present in all font files.  If missing, `AttributeError` is
+raised.
 """
 
 Face_tt_vertheader = """
 The TrueType vertical header (`TT_VertHeader`).
+
+Isn't present in all font files.  If missing, `AttributeError` is
+raised.
 """
 
 Face_glyph = """
@@ -921,7 +936,7 @@ hinter.
   rendered in non-monochrome modes.
 
 - `TARGET_LCD`: A variant of `LOAD.TARGET_NORMAL` optimized for
-  horizontally decimated LCD displays.  On many freetype builds, this
+  horizontally decimated LCD displays.  On many FreeType builds, this
   functionality will be disabled due to patent restrictions, in which
   case the resulting bitmap will be grayscale.
 

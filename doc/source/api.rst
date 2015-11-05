@@ -3,7 +3,7 @@ Freetypy API documentation
 
 .. currentmodule:: freetypy
 
-The API closely follows the `freetype API
+The API closely follows the `FreeType API
 <http://freetype.org/freetype2/docs/reference/ft2-toc.html>`_.  It is
 not 100% complete, but it does contain the functionality that most
 would need.
@@ -12,7 +12,7 @@ Names have been modified to follow Python's `PEP8 style guidelines
 <http://www.python.org/dev/peps/pep-0008/>`_.
 
 Where appropriate, extra API functions have been added to make working
-with freetype more Pythonic.  These methods are marked with the
+with FreeType more Pythonic.  These methods are marked with the
 |freetypy| in the documentation.
 
 Face

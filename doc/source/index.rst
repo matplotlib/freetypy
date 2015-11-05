@@ -6,7 +6,7 @@
 freetypy documentation
 ======================
 
-`freetypy` is a general-purpose Python wrapper to `freetype
+`freetypy` is a general-purpose Python wrapper to `FreeType
 <http://www.freetype.org>`_ with a goal to be fast and flexible as
 possible.
 

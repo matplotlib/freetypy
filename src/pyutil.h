@@ -60,10 +60,10 @@ int ftpy_setup_buffer_type(
 int setup_pyutil(PyObject *m);
 
 
-/* For an 8-bit string in Freetype that should be returned as a Unicode
+/* For an 8-bit string in FreeType that should be returned as a Unicode
    string in Python.  If NULL, return None to Python. */
 #define T_NULL_STRING_AS_UNICODE 0x10001
-/* For an 8-bit string in Freetype that should be returned as a Unicode
+/* For an 8-bit string in FreeType that should be returned as a Unicode
    string in Python.  Should never be NULL. */
 #define T_STRING_AS_UNICODE      0x10002
 /* FT_Fixed 16.16 fixed point values.  Returned to Python as a float. */

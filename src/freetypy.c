@@ -127,7 +127,7 @@ PyObject *freetypy_module;
 #else
     freetypy_module = Py_InitModule3(
         "_freetypy", module_methods,
-        "Freetype bindings");
+        "FreeType bindings");
 #endif
 
     if (freetypy_module == NULL) {

@@ -1,7 +1,7 @@
 Introduction to freetypy
 ========================
 
-Since freetypy closely follows freetype's native C API, the `freetype
+Since freetypy closely follows FreeType's native C API, the `FreeType
 documentation <http://freetype.org/freetype2/docs/documentation.html>`_
 serves as a good introduction to freetypy as well.
 
@@ -22,7 +22,7 @@ Then the size (in points) must be selected::
     >>> face.set_char_size(48)
 
 Once that setup is performed, a glyph may be loaded.  We pass
-``load_flags=ft.LOAD.RENDER`` to tell freetype to load the glyph
+``load_flags=ft.LOAD.RENDER`` to tell FreeType to load the glyph
 outline and then subsequently render it to a bitmap::
 
     >>> glyph = face.load_char_unicode(u"S", load_flags=ft.LOAD.RENDER)

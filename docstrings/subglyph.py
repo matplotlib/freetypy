@@ -76,7 +76,7 @@ Describes subglyphs.
 
 - `TWOXTWO`: If set, there is a 2-by-2 transformation that will be
   used to scale the component. (|freetypy| This is named `2X2` in the
-  underlying freetype library, but was renamed here so it doesn't
+  underlying FreeType library, but was renamed here so it doesn't
   begin with a digit.)
 
 - `USE_MY_METRICS`: Use metrics from this component for the compound

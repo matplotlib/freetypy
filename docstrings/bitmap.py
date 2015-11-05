@@ -135,14 +135,14 @@ Constants related to the pixel mode of `Bitmap`.
 - `LCD`: An 8-bit bitmap, representing RGB or BGR decimated glyph
   images used for display on LCD displays; the bitmap is three times
   wider than the original glyph image. See also `RENDER_MODE.LCD`.  On
-  many freetype builds, this functionality will be disabled due to
+  many FreeType builds, this functionality will be disabled due to
   patent restrictions, in which case the resulting bitmap will be
   grayscale.
 
 - `LCD_V`: An 8-bit bitmap, representing RGB or BGR decimated glyph
   images used for display on rotated LCD displays; the bitmap is three
   times taller than the original glyph image. See also
-  `RENDER_MODE.LCD_V`. On many freetype builds, this functionality
+  `RENDER_MODE.LCD_V`. On many FreeType builds, this functionality
   will be disabled due to patent restrictions, in which case the
   resulting bitmap will be grayscale.
 """
