@@ -38,7 +38,10 @@ from . import codecs
 from ._freetypy import *
 
 from ._freetypy import (__freetype_version__,
-                        __version__,
                         __freetype_build_type__)
 
 from . import util
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

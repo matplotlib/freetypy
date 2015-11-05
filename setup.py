@@ -33,6 +33,8 @@
 
 from __future__ import print_function, absolute_import
 
+import versioneer
+
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext as BuildExtCommand
 
@@ -67,11 +69,16 @@ if __name__ == '__main__':
         if config.has_option('test', 'local_freetype'):
             local_freetype = True
 
-    class BuildLocalFreetype(BuildExtCommand):
+    cmdclass = versioneer.get_cmdclass()
+    OriginalBuildExt = cmdclass.get('build_ext', BuildExtCommand)
+
+    class BuildLocalFreetype(OriginalBuildExt):
         def run(self):
             if local_freetype:
                 build_local_freetype.build_local_freetype()
-            return BuildExtCommand.run(self)
+            return OriginalBuildExt.run(self)
+
+    cmdclass['build_ext'] = BuildLocalFreetype
 
     extension = Extension(
         'freetypy._freetypy',
@@ -86,7 +93,7 @@ if __name__ == '__main__':
         extension.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     setup(name="freetypy",
-          version="0.1",
+          version=versioneer.get_version(),
           description="Python wrapper for Freetype",
           author="Michael Droettboom",
           author_email="mike@droettboom.com",
@@ -94,4 +101,4 @@ if __name__ == '__main__':
           package_dir={'': 'lib'},
           package_data={'freetypy': ['data/*.ttf']},
           ext_modules=[extension],
-          cmdclass={'build_ext': BuildLocalFreetype})
+          cmdclass=cmdclass)
