@@ -74,7 +74,7 @@ static unsigned long read_from_file_callback(
     FT_Stream stream, unsigned long offset, unsigned char *buffer,
     unsigned long count) {
 
-    Py_Face *self = (Py_Face *)stream->descriptor.pointer;
+    Py_Face_Stream_Meta *self = (Py_Face_Stream_Meta *)stream->descriptor.pointer;
 
     if (ftpy_fseek(self->fp, offset, SEEK_SET) == -1) {
         return 0;
@@ -90,7 +90,7 @@ static unsigned long read_from_file_callback(
 
 static void close_file_callback(FT_Stream stream)
 {
-    Py_Face *self = (Py_Face *)stream->descriptor.pointer;
+    Py_Face_Stream_Meta *self = (Py_Face_Stream_Meta *)stream->descriptor.pointer;
 
     ftpy_PyFile_DupClose(self->py_file, self->fp, self->offset);
 
@@ -111,7 +111,7 @@ static void close_file_callback(FT_Stream stream)
 static int _py_file_to_open_args(
     PyObject *py_file_arg,
     FT_Open_Args *open_args,
-    Py_Face *face)
+    Py_Face_Stream_Meta *meta)
 {
     PyObject *py_file = NULL;
     int close_file = 0;
@@ -140,23 +140,23 @@ static int _py_file_to_open_args(
 
     if ((fp = ftpy_PyFile_Dup(py_file, (char *)"rb", &offset))) {
         Py_INCREF(py_file);
-        face->py_file = py_file;
-        face->close_file = close_file;
-        face->fp = fp;
-        face->offset = offset;
+        meta->py_file = py_file;
+        meta->close_file = close_file;
+        meta->fp = fp;
+        meta->offset = offset;
         fseek(fp, 0, SEEK_END);
         file_size = ftpy_ftell(fp);
         fseek(fp, 0, SEEK_SET);
 
-        face->stream.base = NULL;
-        face->stream.size = (unsigned long)file_size;
-        face->stream.pos = 0;
-        face->stream.descriptor.pointer = face;
-        face->stream.read = &read_from_file_callback;
-        face->stream.close = &close_file_callback;
+        meta->stream.base = NULL;
+        meta->stream.size = (unsigned long)file_size;
+        meta->stream.pos = 0;
+        meta->stream.descriptor.pointer = meta;
+        meta->stream.read = &read_from_file_callback;
+        meta->stream.close = &close_file_callback;
 
         open_args->flags = FT_OPEN_STREAM;
-        open_args->stream = &face->stream;
+        open_args->stream = &meta->stream;
 
         result = 0;
         goto exit;
@@ -179,15 +179,15 @@ static int _py_file_to_open_args(
             goto exit;
         }
 
-        if (face->mem) {
-            free(face->mem);
+        if (meta->mem) {
+            free(meta->mem);
         }
-        face->mem = PyMem_Malloc(face->mem_size + data_len);
-        if (face->mem == NULL) {
+        meta->mem = PyMem_Malloc(meta->mem_size + data_len);
+        if (meta->mem == NULL) {
             goto exit;
         }
-        new_memory = face->mem + face->mem_size;
-        face->mem_size += data_len;
+        new_memory = meta->mem + meta->mem_size;
+        meta->mem_size += data_len;
 
         memcpy(new_memory, data_ptr, data_len);
         open_args->flags = FT_OPEN_MEMORY;
@@ -226,9 +226,11 @@ Py_Face_dealloc(Py_Face* self)
     if (self->x) {
         FT_Done_Face(self->x);
     }
-    Py_XDECREF(self->py_file);
+    Py_XDECREF(self->main.py_file);
+    free(self->main.mem);
+    Py_XDECREF(self->attach.py_file);
+    free(self->attach.mem);
     Py_XDECREF(self->filename);
-    free(self->mem);
     Py_TYPE(self)->tp_clear((PyObject*)self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -246,10 +248,10 @@ Py_Face_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(freetypy_module);
     self->base.owner = freetypy_module;
     self->x = NULL;
-    memset(&self->stream, 0, sizeof(FT_StreamRec));
-    self->mem = NULL;
-    self->mem_size = 0;
+    self->load_flags = 0;
     self->filename = NULL;
+    memset(&self->main, 0, sizeof(Py_Face_Stream_Meta));
+    memset(&self->attach, 0, sizeof(Py_Face_Stream_Meta));
     return (PyObject *)self;
 }
 
@@ -270,7 +272,7 @@ Py_Face_init(Py_Face *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (_py_file_to_open_args(py_file_arg, &open_args, self)) {
+    if (_py_file_to_open_args(py_file_arg, &open_args, &self->main)) {
         goto exit;
     }
 
@@ -533,7 +535,7 @@ Py_Face_attach(Py_Face *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (_py_file_to_open_args(py_file_arg, &open_args, self)) {
+    if (_py_file_to_open_args(py_file_arg, &open_args, &self->attach)) {
         return NULL;
     }
 
