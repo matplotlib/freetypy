@@ -34,12 +34,23 @@
 from __future__ import print_function, absolute_import
 
 from distutils.core import setup, Extension
+from distutils.command.build_ext import build_ext as BuildExtCommand
+
 import glob
+import os
 import sys
+
+PY3 = (sys.version_info[0] >= 3)
+
+if PY3:
+    import configparser
+else:
+    import ConfigParser as configparser
 
 sys.path.insert(0, 'buildext')
 sys.path.insert(0, 'doc')
 
+import build_local_freetype
 import convert_docstrings
 import pkgconfig
 
@@ -47,13 +58,32 @@ import pkgconfig
 if __name__ == '__main__':
     convert_docstrings.convert_all_docstrings('docstrings', 'src/doc')
 
+    local_freetype = False
+    setup_cfg = 'setup.cfg'
+    if os.path.exists(setup_cfg):
+        config = configparser.SafeConfigParser()
+        config.read(setup_cfg)
+
+        if config.has_option('test', 'local_freetype'):
+            local_freetype = True
+
+    class BuildLocalFreetype(BuildExtCommand):
+        def run(self):
+            if local_freetype:
+                build_local_freetype.build_local_freetype()
+            return BuildExtCommand.run(self)
+
     extension = Extension(
         'freetypy._freetypy',
         glob.glob('src/*.c') +
         glob.glob('src/doc/*.c'))
 
-    pkgconfig.pkgconfig.setup_extension(
-        extension, 'freetype2', alt_exec='freetype-config')
+    if local_freetype:
+        build_local_freetype.set_flags(extension)
+    else:
+        pkgconfig.pkgconfig.setup_extension(
+            extension, 'freetype2', alt_exec='freetype-config')
+        extension.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     setup(name="freetypy",
           version="0.1",
@@ -63,4 +93,5 @@ if __name__ == '__main__':
           packages=['freetypy', 'freetypy.tests', 'freetypy.codecs'],
           package_dir={'': 'lib'},
           package_data={'freetypy': ['data/*.ttf']},
-          ext_modules=[extension])
+          ext_modules=[extension],
+          cmdclass={'build_ext': BuildLocalFreetype})

@@ -37,6 +37,8 @@ from . import codecs
 
 from ._freetypy import *
 
-from ._freetypy import __freetype_version__
+from ._freetypy import (__freetype_version__,
+                        __version__,
+                        __freetype_build_type__)
 
 from . import util

@@ -32,3 +32,16 @@
 # the FreeBSD Project.
 
 from __future__ import print_function, unicode_literals, absolute_import
+
+import warnings
+
+
+def setup():
+    import freetypy as ft
+    LOCAL_FREETYPE_VERSION = "2.6.1"
+
+    if (ft.__freetype_version__ != LOCAL_FREETYPE_VERSION or
+        ft.__freetype_build_type__ != 'local'):
+        warnings.warn(
+            "freetypy is not built with the correct FreeType version to run "
+            "tests.  Set local_freetype=True in setup.cfg and rebuild. ")

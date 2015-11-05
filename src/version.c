@@ -41,6 +41,8 @@ int setup_version(PyObject *m)
     return (
         PyModule_AddStringConstant(
             freetypy_module, "__freetype_version__", version_string) ||
-        PyModule_AddStringConstant(m, "__version__", "0.1")
+        PyModule_AddStringConstant(m, "__version__", "0.1") ||
+        PyModule_AddStringConstant(
+            m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))
     );
 }

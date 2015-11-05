@@ -36,7 +36,6 @@ from __future__ import print_function, unicode_literals, absolute_import
 import glob
 import imp
 import os
-import re
 import sys
 
 

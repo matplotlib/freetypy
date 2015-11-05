@@ -34,6 +34,7 @@ dist
 # tox testing tool
 .tox
 MANIFEST
+setup.cfg
 
 # OS generated files #
 ######################

@@ -1,0 +1,8 @@
+[test]
+# If you want to make sure the font renderings from freetypy are
+# absolutely repeatable, you should build with a specific version of
+# FreeType.  Setting this option to `True` will download and build a
+# specific version of FreeType, and then use that to build the freetypy
+# extension.
+
+#local_freetype = False

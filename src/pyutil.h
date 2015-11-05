@@ -33,6 +33,10 @@ either expressed or implied, of the FreeBSD Project.
 #include "freetypy.h"
 
 
+#define STRINGIFY(s) XSTRINGIFY(s)
+#define XSTRINGIFY(s) #s
+
+
 typedef struct {
     PyObject_HEAD
     PyObject *owner;
