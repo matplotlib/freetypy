@@ -32,11 +32,15 @@ either expressed or implied, of the FreeBSD Project.
 
 int setup_version(PyObject *m)
 {
-    PyObject *__version__ = Py_BuildValue(
-        "iii", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH);
+    FT_Int major, minor, patch;
+    char version_string[64];
+
+    FT_Library_Version(get_ft_library(), &major, &minor, &patch);
+    snprintf(version_string, 64, "%d.%d.%d", major, minor, patch);
 
     return (
-            PyModule_AddObject(m, "__freetype_version__", __version__) ||
-            PyModule_AddStringConstant(m, "__version__", "0.1")
-            );
+        PyModule_AddStringConstant(
+            freetypy_module, "__freetype_version__", version_string) ||
+        PyModule_AddStringConstant(m, "__version__", "0.1")
+    );
 }

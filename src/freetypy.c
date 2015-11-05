@@ -134,18 +134,6 @@ PyObject *freetypy_module;
         INITERROR;
     }
 
-    {
-        FT_Int major, minor, patch;
-        char version_string[64];
-
-        FT_Library_Version(ft_library, &major, &minor, &patch);
-        sprintf(version_string, "%d.%d.%d", major, minor, patch);
-        if (PyModule_AddStringConstant(
-                freetypy_module, "__freetype_version__", version_string)) {
-            INITERROR;
-        }
-    }
-
     if (setup_pyutil(freetypy_module) ||
         setup_constants(freetypy_module) ||
         setup_version(freetypy_module) ||
