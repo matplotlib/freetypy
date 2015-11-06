@@ -49,10 +49,10 @@ int ftpy_exc(FT_Error error)
         entry = &errors[error];
         if (entry->code == 0) {
             PyErr_Format(
-                PyExc_RuntimeError, "Unknown FreeType exception %x", error);
+                PyExc_RuntimeError, "Unknown FreeType exception 0x%x", error);
             return 1;
         } else {
-            PyErr_Format(entry->cls, "FreeType error %x: %s", error, entry->msg);
+            PyErr_Format(entry->cls, "FreeType error 0x%x: %s", error, entry->msg);
             return 1;
         }
     }
