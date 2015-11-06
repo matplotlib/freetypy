@@ -129,7 +129,7 @@ Py_SfntNames_get_name(Py_SfntNames* self, PyObject* args, PyObject* kwds) {
         }
     }
 
-    Py_RETURN_NONE;
+    return PyErr_Format(PyExc_KeyError, "No name of type %d", name);
 };
 
 
