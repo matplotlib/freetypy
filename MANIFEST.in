@@ -2,4 +2,5 @@ include README
 include buildext/*.py
 include tox.ini
 include src/*.c src/*.h
-include docstrings/*.py
+include docstrings/*.pyinclude versioneer.py
+include lib/freetypy/_version.py
