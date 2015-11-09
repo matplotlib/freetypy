@@ -69,6 +69,9 @@ if __name__ == '__main__':
         if config.has_option('test', 'local_freetype'):
             local_freetype = True
 
+    local_freetype = (('FREETYPY_LOCAL_FREETYPE' in os.environ) or
+                      local_freetype)
+
     cmdclass = versioneer.get_cmdclass()
     OriginalBuildExt = cmdclass.get('build_ext', BuildExtCommand)
 
