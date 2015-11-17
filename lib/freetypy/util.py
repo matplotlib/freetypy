@@ -58,8 +58,10 @@ def bitmap_to_ascii(a):
 
     lines = []
     for row in a.to_list():
+        line = []
         for col in row:
             col = int(float(col) / 255. * 4.)
             c = shades[col]
-            lines.append(c)
+            line.append(c)
+        lines.append(''.join(line))
     return '\n'.join(lines)
