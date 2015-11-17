@@ -38,6 +38,9 @@ A library to subset SFNT-style fonts.
 from __future__ import absolute_import, division, unicode_literals, print_function
 
 
+__all__ = ['subset_font']
+
+
 from collections import OrderedDict
 import struct
 
