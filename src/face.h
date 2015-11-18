@@ -36,19 +36,24 @@ either expressed or implied, of the FreeBSD Project.
 
 
 typedef struct {
-    ftpy_Object base;
-    FT_Face x;
     FT_StreamRec stream;
-    void *mem;
-    size_t mem_size;
-    PyObject *filename;
-    int load_flags;
-
-    /* For stream reading */
     PyObject *py_file;
     FILE *fp;
     int close_file;
     ftpy_offset_t offset;
+    void *mem;
+    size_t mem_size;
+} Py_Face_Stream_Meta;
+
+
+typedef struct {
+    ftpy_Object base;
+    FT_Face x;
+    int load_flags;
+    PyObject *filename;
+
+    Py_Face_Stream_Meta main;
+    Py_Face_Stream_Meta attach;
 } Py_Face;
 
 
