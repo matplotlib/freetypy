@@ -863,6 +863,7 @@ Py_Outline_to_string(Py_Outline* self, PyObject* args, PyObject* kwds)
         "move_command", "line_command", "cubic_command", "conic_command",
         "prefix", NULL};
 
+    data.prefix = 0;
     data.conic_command = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(

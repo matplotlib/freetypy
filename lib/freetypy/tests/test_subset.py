@@ -33,35 +33,32 @@
 
 from __future__ import print_function, unicode_literals, absolute_import
 
+import freetypy as ft
+from freetypy import subset
+from .util import *
 
-import os
-import sys
-
-
-__all__ = ['vera_path', 'bitmap_to_ascii']
-
-
-def vera_path():
-    """
-    The path to the copy of Bitstream Vera Sans that ships with
-    freetypy for testing purposes.
-    """
-    return os.path.join(os.path.dirname(__file__), 'data', 'Vera.ttf')
+import io
 
 
-def bitmap_to_ascii(a):
-    """
-    Converts a single `Glyph` to a string with an ASCII drawing of
-    that glyph.
-    """
-    shades = ' .+*#'
+def test_subset():
+    face = ft.Face(vera_path())
+    face.set_char_size(12, 12, 300, 300)
+    glyph = face.load_char_unicode('B')
+    original_B = glyph.outline.to_string(' M ', ' L ', ' C ', ' Q ')
 
-    lines = []
-    for row in a.to_list():
-        line = []
-        for col in row:
-            col = int(float(col) / 255. * 4.)
-            c = shades[col]
-            line.append(c)
-        lines.append(''.join(line))
-    return '\n'.join(lines)
+    with open(vera_path(), 'rb') as input_fd:
+        output_fd = io.BytesIO()
+        subset.subset_font(input_fd, output_fd, 'ABCD')
+
+    output_fd.seek(0)
+
+    face = ft.Face(output_fd)
+    face.set_char_size(12, 12, 300, 300)
+    glyph = face.load_char_unicode('B')
+    s = glyph.outline.to_string(' M ', ' L ', ' C ', ' Q ')
+    assert original_B == s
+
+    # Not here
+    glyph = face.load_char_unicode('X')
+    s = glyph.outline.to_string(' M ', ' L ', ' C ', ' Q ')
+    assert len(s) == 0
