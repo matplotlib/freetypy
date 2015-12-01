@@ -121,7 +121,7 @@ class _BinaryStruct(object):
         fd.write(buff)
 
 
-class Table(object):
+class _Table(object):
     header_struct = _BinaryStruct([
         ('tag', '4s'),
         ('checkSum', 'I'),
@@ -159,6 +159,7 @@ class Table(object):
     @property
     def content(self):
         return self._content
+
     @content.setter
     def content(self, new_content):
         checksum = self._calc_checksum(new_content)
@@ -167,7 +168,7 @@ class Table(object):
         self._content = new_content
 
 
-class HeadTable(Table):
+class _HeadTable(_Table):
     head_table_struct = _BinaryStruct([
         ('version', 'I'),
         ('fontRevision', 'I'),
@@ -188,7 +189,7 @@ class HeadTable(Table):
         ('glyphDataFormat', 'h')])
 
     def __init__(self, header, content):
-        super(HeadTable, self).__init__(header, content)
+        super(_HeadTable, self).__init__(header, content)
 
         self.__dict__.update(self.head_table_struct.unpack(content))
 
@@ -199,7 +200,7 @@ class HeadTable(Table):
             raise ValueError("Bad magic number")
 
 
-class LocaTable(Table):
+class _LocaTable(_Table):
     def _get_formats(self, fontfile):
         if fontfile[b'head'].indexToLocFormat == 0:  # short offsets
             return '>H', 2, 2
@@ -236,7 +237,7 @@ class LocaTable(Table):
         self.content = b''.join(new_content)
 
 
-class GlyfTable(Table):
+class _GlyfTable(_Table):
     def subset(self, glyphs, offsets):
         content = self.content
         new_content = []
@@ -246,13 +247,13 @@ class GlyfTable(Table):
 
 
 SPECIAL_TABLES = {
-    b'head': HeadTable,
-    b'loca': LocaTable,
-    b'glyf': GlyfTable
+    b'head': _HeadTable,
+    b'loca': _LocaTable,
+    b'glyf': _GlyfTable
 }
 
 
-class FontFile(object):
+class _FontFile(object):
     """
     A class to subset SFNT-style fonts (TrueType and OpenType).
     """
@@ -272,6 +273,9 @@ class FontFile(object):
 
     def __getitem__(self, tag):
         return self._tables[tag]
+
+    def __hasitem__(self, tag):
+        return tag in self._tables
 
     @classmethod
     def read(cls, fd):
@@ -297,7 +301,12 @@ class FontFile(object):
         return cls(face, header, tables)
 
     def subset(self, ccodes):
-        glyphs = []
+        if (not b'loca' in self or
+            not b'glyf' in self):
+            raise ValueError("No outlines found, so can not subset")
+
+        # Always include glyph 0
+        glyphs = [0]
         for ccode in ccodes:
             glyphs.append(self._face.get_char_index_unicode(ccode))
         glyphs.sort()
@@ -327,6 +336,8 @@ def subset_font(input_fd, output_fd, charcodes):
     """
     Subset a SFNT-style (TrueType or OpenType) font.
 
+    If the font is not one of these types, a ValueError is raised.
+
     Parameters
     ----------
     input_fd : readable file-like object, for bytes
@@ -338,6 +349,6 @@ def subset_font(input_fd, output_fd, charcodes):
     charcodes : list of int or unicode string
         The character codes to include in the output font file.
     """
-    fontfile = FontFile.read(input_fd)
+    fontfile = _FontFile.read(input_fd)
     fontfile.subset(charcodes)
     fontfile.write(output_fd)

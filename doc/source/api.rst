@@ -44,6 +44,18 @@ layout engine, such as `Pango <http://www.pango.org/>`_.
 
    Layout
 
+Subset
+------
+
+|freetypy| Freetypy includes support for subsetting TrueType and
+OpenType fonts.
+
+.. autosummary::
+   :toctree: _generated
+   :template: autosummary/module.rst
+
+   subset
+
 Glyph
 -----
 
