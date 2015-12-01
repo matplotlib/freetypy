@@ -301,8 +301,8 @@ class _FontFile(object):
         return cls(face, header, tables)
 
     def subset(self, ccodes):
-        if (not b'loca' in self or
-            not b'glyf' in self):
+        if (b'loca' not in self._tables or
+            b'glyf' not in self._tables):
             raise ValueError("No outlines found, so can not subset")
 
         # Always include glyph 0
