@@ -147,7 +147,7 @@ class _Table(object):
 
     @classmethod
     def read(cls, fd):
-        header = Table.header_struct.read(fd)
+        header = _Table.header_struct.read(fd)
         content = fd.read(header['length'])
 
         return cls(header, content)
@@ -286,13 +286,13 @@ class _FontFile(object):
 
         table_dir = []
         for i in range(header['numTables']):
-            table_dir.append(Table.header_struct.read(fd))
+            table_dir.append(_Table.header_struct.read(fd))
 
         tables = OrderedDict()
         for table_header in table_dir:
             fd.seek(table_header['offset'])
             content = fd.read(table_header['length'])
-            table_cls = SPECIAL_TABLES.get(table_header['tag'], Table)
+            table_cls = SPECIAL_TABLES.get(table_header['tag'], _Table)
             tables[table_header['tag']] = table_cls(table_header, content)
 
         fd.seek(0)
@@ -319,14 +319,14 @@ class _FontFile(object):
         self.header_struct.write(fd, self._header)
 
         offset = (self.header_struct.size +
-                  Table.header_struct.size * len(self._tables))
+                  _Table.header_struct.size * len(self._tables))
 
         for table in self._tables.values():
             table.header['offset'] = offset
             offset += len(table.content)
 
         for table in self._tables.values():
-            Table.header_struct.write(fd, table.header)
+            _Table.header_struct.write(fd, table.header)
 
         for table in self._tables.values():
             fd.write(table._content)
