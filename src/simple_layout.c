@@ -132,13 +132,6 @@ FT_Error ftpy_calculate_simple_layout(
         previous_glyph_index = glyph_index;
     }
 
-    /* layout->ink_bbox.xMin &= 0xffffffc0; */
-    /* layout->ink_bbox.yMin &= 0xffffffc0; */
-    /* layout->ink_bbox.xMax += 1 << 6; */
-    /* layout->ink_bbox.xMax &= 0xffffffc0; */
-    /* layout->ink_bbox.yMax += 1 << 6; */
-    /* layout->ink_bbox.yMax &= 0xffffffc0; */
-
     status = 0;
 
  exit:
