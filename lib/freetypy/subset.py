@@ -49,6 +49,7 @@ from freetypy import Face
 
 
 UNDERSTOOD_VERSIONS = (0x00010000, 0x4f54544f)
+MAGIC_NUMBER = 0x5F0F3CF5
 
 
 class _BinaryStruct(object):
@@ -196,7 +197,7 @@ class _HeadTable(_Table):
         if self.version not in UNDERSTOOD_VERSIONS:
             raise ValueError("Not a TrueType or OpenType file")
 
-        if self.magicNumber != 0x5F0F3CF5:
+        if self.magicNumber != MAGIC_NUMBER:
             raise ValueError("Bad magic number")
 
 
@@ -302,8 +303,9 @@ class _FontFile(object):
 
     def subset(self, ccodes):
         if (b'loca' not in self._tables or
-            b'glyf' not in self._tables):
-            raise ValueError("No outlines found, so can not subset")
+                b'glyf' not in self._tables):
+            # No outlines found, so can not subset
+            return
 
         # Always include glyph 0
         glyphs = [0]
