@@ -30,6 +30,7 @@ Face
    LOAD
    SIZE_REQUEST_TYPE
    FSTYPE
+   KERNING
 
 Layout
 ------
