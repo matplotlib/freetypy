@@ -29,10 +29,9 @@ either expressed or implied, of the FreeBSD Project.
 
 #include "encoding.h"
 
-#include <endian.h>
+#include "portable_endian.h"
 
 #include FT_TRUETYPE_IDS_H
-
 
 static int freetype_to_python_encoding(
         unsigned short platform_id, unsigned short encoding_id,

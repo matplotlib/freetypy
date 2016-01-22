@@ -269,7 +269,7 @@ Py_Face_init(Py_Face *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|l:Face.__init__", kwlist,
                                      &py_file_arg,
                                      &face_index)) {
-        return -1;
+        goto exit;
     }
 
     if (_py_file_to_open_args(py_file_arg, &open_args, &self->main)) {
