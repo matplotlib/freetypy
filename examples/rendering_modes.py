@@ -91,4 +91,9 @@ if __name__ == '__main__':
     if isinstance(char, bytes):
         char = char.decode('utf-8')
 
+    try:
+        ft.set_lcd_filter(ft.LCD_FILTER.LIGHT)
+    except NotImplementedError:
+        print("LCD filtering is not available in your freetype build")
+
     rendering_modes(char)
