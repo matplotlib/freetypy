@@ -40,6 +40,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "glyph.h"
 #include "glyph_metrics.h"
 #include "layout.h"
+#include "lcd.h"
 #include "matrix.h"
 #include "outline.h"
 #include "sfntname.h"
@@ -58,6 +59,9 @@ either expressed or implied, of the FreeBSD Project.
 #include "vector.h"
 #include "version.h"
 
+#include "doc/lcd.h"
+
+#include "freetype/ftlcdfil.h"
 
 static FT_Library ft_library;
 
@@ -66,7 +70,51 @@ FT_Library get_ft_library()
     return ft_library;
 }
 
+
+PyObject *
+py_set_lcd_filter(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    int filter;
+
+    static char *kwlist[] = {"filter", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i:set_lcd_filter", kwlist,
+                                     &filter)) {
+        return NULL;
+    }
+
+    if (ftpy_exc(FT_Library_SetLcdFilter(get_ft_library(), filter))) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+
+PyObject *
+py_set_lcd_filter_weights(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    char filters[5];
+
+    static char *kwlist[] = {"filter", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "bbbbb:set_lcd_filter_weights", kwlist,
+                                     &filters[0], &filters[1], &filters[2],
+                                     &filters[3], &filters[4])) {
+        return NULL;
+    }
+
+    if (ftpy_exc(FT_Library_SetLcdFilterWeights(get_ft_library(), filters))) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+
 static PyMethodDef module_methods[] = {
+    {"set_lcd_filter", (PyCFunction)py_set_lcd_filter, METH_VARARGS|METH_KEYWORDS, doc_set_lcd_filter},
+    {"set_lcd_filter_weights", (PyCFunction)py_set_lcd_filter_weights, METH_VARARGS|METH_KEYWORDS, doc_set_lcd_filter_weights},
     {NULL}  /* Sentinel */
 };
 
@@ -147,6 +195,7 @@ PyObject *freetypy_module;
         setup_Glyph(freetypy_module) ||
         setup_Glyph_Metrics(freetypy_module) ||
         setup_Layout(freetypy_module) ||
+        setup_Lcd(freetypy_module) ||
         setup_Matrix(freetypy_module) ||
         setup_Outline(freetypy_module) ||
         setup_SfntName(freetypy_module) ||
