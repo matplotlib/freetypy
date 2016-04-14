@@ -134,6 +134,15 @@ TrueType information
    TT_WEIGHT_CLASS
    TT_FS_SELECTION
 
+LCD Filtering
+-------------
+
+.. autosummary::
+   :toctree: _generated
+
+   set_lcd_filter
+   set_lcd_filter_weights
+
 Basic Types
 -----------
 

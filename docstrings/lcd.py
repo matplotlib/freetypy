@@ -41,15 +41,31 @@ Works when called `Glyph.render` with `RENDER_MODE.LCD` or `RENDER_MODE.LCD_V`.
 Parameters
 ----------
 
-filter : `RENDER_MODE` constant
+filter : `LCD_FILTER` constant
 
 Notes
 -----
-
 This feature is always disabled by default. Clients must make an
 explicit call to this function with a `filter` value other than
 `LCD_FILTER.NONE` in order to enable it.
 
+Due to PATENTS covering subpixel rendering, this function doesn't do
+anything except raising `NotImplementedError` if the configuration
+macro ``FT_CONFIG_OPTION_SUBPIXEL_RENDERING`` is not defined in your
+build of the library, which should correspond to all default builds of
+FreeType.
+"""
+
+set_lcd_filter_weights = """
+Enable LCD filter with custom weights.
+
+Parameters
+----------
+a, b, c, d, e : int
+    The filter weights
+
+Notes
+-----
 Due to PATENTS covering subpixel rendering, this function doesn't do
 anything except raising `NotImplementedError` if the configuration
 macro ``FT_CONFIG_OPTION_SUBPIXEL_RENDERING`` is not defined in your

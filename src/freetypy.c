@@ -91,8 +91,30 @@ py_set_lcd_filter(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 
+PyObject *
+py_set_lcd_filter_weights(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    char filters[5];
+
+    static char *kwlist[] = {"filter", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "bbbbb:set_lcd_filter_weights", kwlist,
+                                     &filters[0], &filters[1], &filters[2],
+                                     &filters[3], &filters[4])) {
+        return NULL;
+    }
+
+    if (ftpy_exc(FT_Library_SetLcdFilterWeights(get_ft_library(), filters))) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+
 static PyMethodDef module_methods[] = {
     {"set_lcd_filter", (PyCFunction)py_set_lcd_filter, METH_VARARGS|METH_KEYWORDS, doc_set_lcd_filter},
+    {"set_lcd_filter_weights", (PyCFunction)py_set_lcd_filter_weights, METH_VARARGS|METH_KEYWORDS, doc_set_lcd_filter_weights},
     {NULL}  /* Sentinel */
 };
 
