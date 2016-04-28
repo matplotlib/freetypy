@@ -212,11 +212,11 @@ class _LocaTable(_Table):
         entry_format, entry_size, scale = self._get_formats(fontfile)
 
         content = self._content
-        offsets = []
-        for i in range(0, len(content), entry_size):
-            value = struct.unpack(
+        offsets = [
+            struct.unpack(
                 entry_format, content[i:i+entry_size])[0] * scale
-            offsets.append(value)
+            for i in range(0, len(content), entry_size)
+        ]
 
         return offsets
 
@@ -239,18 +239,140 @@ class _LocaTable(_Table):
 
 
 class _GlyfTable(_Table):
+    def find_all_glyphs(self, glyphs, offsets):
+        """
+        Given a set of glyphs, find all glyphs, including the targets of
+        compound glyphs, that are needed to render the glyphs.
+        """
+        ARG_1_AND_2_ARE_WORDS = 1 << 0
+        WE_HAVE_A_SCALE = 1 << 3
+        MORE_COMPONENTS = 1 << 5
+        WE_HAVE_AN_X_AND_Y_SCALE = 1 << 6
+        WE_HAVE_A_TWO_BY_TWO = 1 << 7
+
+        content = self.content
+
+        all_glyphs = set()
+        glyph_queue = glyphs[:]
+
+        while len(glyph_queue):
+            gind = glyph_queue.pop(0)
+            if gind in all_glyphs:
+                continue
+            all_glyphs.add(gind)
+
+            glyph = content[offsets[gind]:offsets[gind+1]]
+            if len(glyph) == 0:
+                continue
+
+            num_contours, = struct.unpack('>h', glyph[0:2])
+            if num_contours < 0:  # compound glyph
+                # skip over glyph header
+                i = 10
+                while True:
+                    flags, component_gind = struct.unpack('>HH', glyph[i:i+4])
+                    glyph_queue.append(component_gind)
+
+                    if not flags & MORE_COMPONENTS:
+                        break
+
+                    # Numbers can be in bytes or shorts, depending on
+                    # flag bit
+                    if flags & ARG_1_AND_2_ARE_WORDS:
+                        base_size = 2
+                    else:
+                        base_size = 1
+
+                    # This is just to calculate how many bytes to skip
+                    # over to find next component entry
+                    i += 4 + base_size * 2
+                    if flags & WE_HAVE_A_SCALE:
+                        i += base_size
+                    elif flags & WE_HAVE_AN_X_AND_Y_SCALE:
+                        i += base_size * 2
+                    elif flags & WE_HAVE_A_TWO_BY_TWO:
+                        i += base_size * 4
+
+        all_glyphs = list(all_glyphs)
+        all_glyphs.sort()
+        return all_glyphs
+
     def subset(self, glyphs, offsets):
         content = self.content
-        new_content = []
+
+        self.content = b''.join(
+            content[offsets[gind]:offsets[gind+1]]
+            for gind in glyphs)
+
+
+class _PostTable(_Table):
+    post_table_struct = _BinaryStruct([
+        ('format', 'I'),
+        ('unused', '28s')])
+
+    def __init__(self, header, content):
+        super(_PostTable, self).__init__(header, content)
+
+        with open('content.bin', 'wb') as fd:
+            fd.write(content)
+
+        self.__dict__.update(self.post_table_struct.unpack(content[:32]))
+
+    def _subset_format2(self, glyphs):
+        n_basic_names = 258
+
+        content = self._content
+        i = 32
+
+        numglyphs, = struct.unpack('>H', content[i:i+2])
+        i += 2
+
+        new_glyph_index = {}
+        needed_indices = {}
         for gind in glyphs:
-            new_content.append(content[offsets[gind]:offsets[gind+1]])
-        self.content = b''.join(new_content)
+            if gind < numglyphs:
+                offset = i + 2 * gind
+                name_index, = struct.unpack('>H', content[offset:offset+2])
+                if name_index < n_basic_names:
+                    new_glyph_index[gind] = name_index
+                elif (name_index >= n_basic_names and
+                      name_index < numglyphs - n_basic_names):
+                    needed_indices[name_index - n_basic_names] = gind
+
+        names = []
+        name_index = 0
+        i += 2 * numglyphs
+        while i < len(content):
+            name_length, = struct.unpack('>B', content[i:i+1])
+            i += 1
+            if name_index in needed_indices:
+                name = content[i:i+name_length]
+                new_glyph_index[needed_indices[name_index]] = (
+                    len(names) + n_basic_names)
+                names.append(name)
+            i += name_length
+            name_index += 1
+
+        new_content = [content[0:36]]
+        for i in range(numglyphs):
+            val = new_glyph_index.get(i, 0)
+            new_content.append(struct.pack('>H', val))
+        for name in names:
+            new_content.append(struct.pack('>B', len(name)))
+            new_content.append(name)
+
+        self._content = b''.join(new_content)
+
+    def subset(self, glyphs):
+        if self.format == 0x20000:
+            self._subset_format2(glyphs)
 
 
 SPECIAL_TABLES = {
     b'head': _HeadTable,
     b'loca': _LocaTable,
-    b'glyf': _GlyfTable
+    b'glyf': _GlyfTable,
+    b'post': _PostTable
 }
 
 
@@ -279,7 +401,7 @@ class _FontFile(object):
         return tag in self._tables
 
     @classmethod
-    def read(cls, fd):
+    def read(cls, fd, tables_to_remove=[]):
         header = cls.header_struct.read(fd)
 
         if header['version'] not in UNDERSTOOD_VERSIONS:
@@ -293,6 +415,8 @@ class _FontFile(object):
         for table_header in table_dir:
             fd.seek(table_header['offset'])
             content = fd.read(table_header['length'])
+            if table_header['tag'] in tables_to_remove:
+                continue
             table_cls = SPECIAL_TABLES.get(table_header['tag'], _Table)
             tables[table_header['tag']] = table_cls(table_header, content)
 
@@ -311,11 +435,16 @@ class _FontFile(object):
         glyphs = [0]
         for ccode in ccodes:
             glyphs.append(self._face.get_char_index_unicode(ccode))
-        glyphs.sort()
 
         offsets = self[b'loca'].get_offsets(self)
+        # Find all glyphs used, including components of compound
+        # glyphs
+        glyphs = self[b'glyf'].find_all_glyphs(glyphs, offsets)
+
         self[b'glyf'].subset(glyphs, offsets)
         self[b'loca'].subset(self, glyphs, offsets)
+        if b'post' in self._tables:
+            self[b'post'].subset(glyphs)
 
     def write(self, fd):
         self.header_struct.write(fd, self._header)
@@ -334,7 +463,7 @@ class _FontFile(object):
             fd.write(table._content)
 
 
-def subset_font(input_fd, output_fd, charcodes):
+def subset_font(input_fd, output_fd, charcodes, tables_to_remove=None):
     """
     Subset a SFNT-style (TrueType or OpenType) font.
 
@@ -350,7 +479,16 @@ def subset_font(input_fd, output_fd, charcodes):
 
     charcodes : list of int or unicode string
         The character codes to include in the output font file.
+
+    tables_to_remove : list of bytes, optional
+        The tags of tables to remove completely.  If not provided,
+        this defaults to:
+
+           [b'GPOS', b'GSUB']
     """
-    fontfile = _FontFile.read(input_fd)
+    if tables_to_remove is None:
+        tables_to_remove = [b'GPOS', b'GSUB']
+
+    fontfile = _FontFile.read(input_fd, tables_to_remove)
     fontfile.subset(charcodes)
     fontfile.write(output_fd)
