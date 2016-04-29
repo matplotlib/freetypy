@@ -60,10 +60,12 @@ to manage the layout of the text against other text.  The result is in
 pixels.
 """
 
-Layout_glyph_indices = """
-The glyph indices of each glyph in the layout.
-"""
+Layout_layout = """
+Returns a list of tuples describing the layout.
 
-Layout_points = """
-The (x, y) location of each glyph in the layout.
+Each tuple is of the form:
+
+  - `Face`: The `Face` object containing the glyph
+  - `glyph_index`: The glyph index within the `Face`
+  - `(x, y)`: The x, y position of the glyph
 """

@@ -43,14 +43,6 @@ either expressed or implied, of the FreeBSD Project.
 */
 
 
-static PyTypeObject Py_Layout_Points_Buffer_Type;
-static PyTypeObject Py_Layout_Glyph_Indices_Buffer_Type;
-
-
-static PyObject *Py_Layout_Points_Buffer_cnew(PyObject *owner);
-static PyObject *Py_Layout_Glyph_Indices_Buffer_cnew(PyObject *owner);
-
-
 static void
 Py_Layout_dealloc(Py_Layout* self)
 {
@@ -159,114 +151,48 @@ static PyObject *layout_bbox_get(Py_Layout *self, PyObject *closure)
     return Py_BBox_cnew(&self->x.layout_bbox, 1.0 / (double)(1 << 6));
 }
 
-
-static PyObject *glyph_indices_get(Py_Layout *self, PyObject *closure)
+static PyObject *layout_get(Py_Layout *self, PyObject *closure)
 {
-    return Py_Layout_Glyph_Indices_Buffer_cnew((PyObject *)self);
+    PyObject *result;
+    PyObject *subresult;
+    ftpy_Layout *layout;
+    size_t i;
+
+    layout = &self->x;
+
+    result = PyList_New(layout->size);
+
+    if (result == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < layout->size; ++i) {
+        subresult = Py_BuildValue(
+                "(Ok(dd))",
+                self->base.owner,
+                layout->glyph_indices[i],
+                layout->xys[i].x,
+                layout->xys[i].y);
+        if (subresult == NULL) {
+            Py_DECREF(result);
+            return NULL;
+        }
+        if (PyList_SetItem(result, i, subresult)) {
+            Py_DECREF(subresult);
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    return result;
 }
-
-
-static PyObject *points_get(Py_Layout *self, PyObject *closure)
-{
-    return Py_Layout_Points_Buffer_cnew((PyObject *)self);
-}
-
 
 static PyGetSetDef Py_Layout_getset[] = {
     DEF_LAYOUT_GETTER(ink_bbox),
     DEF_LAYOUT_GETTER(layout_bbox),
-    DEF_LAYOUT_GETTER(glyph_indices),
-    DEF_LAYOUT_GETTER(points),
+    DEF_LAYOUT_GETTER(layout),
     {NULL}
 };
-
-
-
-/****************************************************************************
- Ancillary buffers
-*/
-
-
-static PyObject *
-Py_Layout_Points_Buffer_cnew(PyObject *owner)
-{
-    ftpy_Buffer *self;
-    self = (ftpy_Buffer *)(&Py_Layout_Points_Buffer_Type)->tp_alloc(
-        &Py_Layout_Points_Buffer_Type, 0);
-    Py_INCREF(owner);
-    self->base.owner = owner;
-    return (PyObject *)self;
-}
-
-
-static int Py_Layout_Points_Buffer_get_buffer(
-    ftpy_Buffer *self, Py_buffer *view, int flags)
-{
-    ftpy_Layout *layout = &((Py_Layout *)self->base.owner)->x;
-    size_t itemsize = sizeof(double);
-
-    Py_INCREF(self);
-    view->obj = (PyObject *)self;
-    view->buf = layout->xys;
-    view->readonly = 1;
-    view->itemsize = itemsize;
-    view->format = "d";
-    view->len = layout->size * 2 * itemsize;
-    view->internal = NULL;
-    view->ndim = 2;
-    view->shape = self->shape;
-    self->shape[0] = layout->size;
-    self->shape[1] = 2;
-    view->strides = self->strides;
-    self->strides[0] = itemsize * 2;
-    self->strides[1] = itemsize;
-    view->suboffsets = NULL;
-
-    return 0;
-}
-
-
-static PyBufferProcs Py_Layout_Points_Buffer_procs;
-
-
-static PyObject *
-Py_Layout_Glyph_Indices_Buffer_cnew(PyObject *owner)
-{
-    ftpy_Buffer *self;
-    self = (ftpy_Buffer *)(&Py_Layout_Glyph_Indices_Buffer_Type)->tp_alloc(
-        &Py_Layout_Glyph_Indices_Buffer_Type, 0);
-    Py_INCREF(owner);
-    self->base.owner = owner;
-    return (PyObject *)self;
-}
-
-
-static int Py_Layout_Glyph_Indices_Buffer_get_buffer(
-    ftpy_Buffer *self, Py_buffer *view, int flags)
-{
-    ftpy_Layout *layout = &((Py_Layout *)self->base.owner)->x;
-    size_t itemsize = sizeof(FT_ULong);
-
-    Py_INCREF(self);
-    view->obj = (PyObject *)self;
-    view->buf = layout->glyph_indices;
-    view->readonly = 1;
-    view->itemsize = itemsize;
-    view->format = "L";
-    view->len = layout->size * itemsize;
-    view->internal = NULL;
-    view->ndim = 1;
-    view->shape = self->shape;
-    self->shape[0] = layout->size;
-    view->strides = self->strides;
-    self->strides[0] = itemsize;
-    view->suboffsets = NULL;
-
-    return 0;
-}
-
-
-static PyBufferProcs Py_Layout_Glyph_Indices_Buffer_procs;
 
 
 /****************************************************************************
@@ -292,24 +218,6 @@ int setup_Layout(PyObject *m)
     };
 
     ftpy_setup_type(m, &Py_Layout_Type);
-
-    if (ftpy_setup_buffer_type(
-            &Py_Layout_Points_Buffer_Type,
-            "freetypy.Layout.PointsBuffer",
-            doc_Layout_points,
-            &Py_Layout_Points_Buffer_procs,
-            (getbufferproc)Py_Layout_Points_Buffer_get_buffer)) {
-        return -1;
-    }
-
-    if (ftpy_setup_buffer_type(
-            &Py_Layout_Glyph_Indices_Buffer_Type,
-            "freetypy.Layout.Glyph_Indices_Buffer",
-            doc_Layout_glyph_indices,
-            &Py_Layout_Glyph_Indices_Buffer_procs,
-            (getbufferproc)Py_Layout_Glyph_Indices_Buffer_get_buffer)) {
-        return -1;
-    }
 
     return 0;
 }

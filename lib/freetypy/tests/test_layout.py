@@ -47,7 +47,9 @@ def test_layout():
 
     assert tuple(layout.layout_bbox)[:3] == (0.0, -6.0, 555.984375)
 
-    assert layout.glyph_indices.to_list() == [
+    glyph_indices = [x[1] for x in layout.layout]
+
+    assert glyph_indices == [
         55, 75, 72, 3, 84, 88, 76, 70, 78, 3, 69, 85, 82, 90, 81, 3,
         73, 82, 91, 3, 77, 88, 80, 83, 72, 71, 3, 82, 89, 72, 85, 3,
         87, 75, 72, 3, 79, 68, 93, 92, 3, 71, 82, 74]
