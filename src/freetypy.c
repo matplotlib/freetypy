@@ -61,7 +61,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include "doc/lcd.h"
 
-#include "freetype/ftlcdfil.h"
+#include FT_LCD_FILTER_H
 
 static FT_Library ft_library;
 
@@ -94,7 +94,7 @@ py_set_lcd_filter(PyObject *self, PyObject *args, PyObject *kwargs)
 PyObject *
 py_set_lcd_filter_weights(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    char filters[5];
+    unsigned char filters[5];
 
     static char *kwlist[] = {"filter", NULL};
 

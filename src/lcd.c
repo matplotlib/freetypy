@@ -30,7 +30,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "lcd.h"
 #include "doc/lcd.h"
 
-#include "freetype/ftlcdfil.h"
+#include FT_LCD_FILTER_H
 
 ftpy_ConstantType Py_FT_LCD_FILTER_ConstantType;
 static PyTypeObject Py_FT_LCD_FILTER_Type;
@@ -46,7 +46,7 @@ static constant_def FT_LCD_FILTER_constants[] = {
 
 int setup_Lcd(PyObject *m)
 {
-    define_constant_namespace(
+    return define_constant_namespace(
           m, &Py_FT_LCD_FILTER_Type, &Py_FT_LCD_FILTER_ConstantType,
           "freetypy.LCD_FILTER",
           doc_LCD_FILTER, FT_LCD_FILTER_constants);
