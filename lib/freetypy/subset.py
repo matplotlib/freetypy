@@ -38,6 +38,15 @@ A library to subset SFNT-style fonts.
 from __future__ import absolute_import, division, unicode_literals, print_function
 
 
+# The general approach here is to not change any glyph ids, merely to
+# remove content for unused glyphs.  This means the character map
+# tables don't have to be rewritten.  Additionally, this doesn't break
+# random third-party table formats that use glyph ids.  This does mean
+# that some space savings are left on the table, but for large Unicode
+# fonts, the glyph data itself is comprises the majority of the file
+# size, and this approach tackles that handily.
+
+
 __all__ = ['subset_font']
 
 
@@ -211,7 +220,7 @@ class _LocaTable(_Table):
     def get_offsets(self, fontfile):
         entry_format, entry_size, scale = self._get_formats(fontfile)
 
-        content = self._content
+        content = self.content
         offsets = [
             struct.unpack(
                 entry_format, content[i:i+entry_size])[0] * scale
@@ -232,10 +241,9 @@ class _LocaTable(_Table):
         new_offsets.append(offset)
 
         entry_format, entry_size, scale = self._get_formats(fontfile)
-        new_content = []
-        for value in new_offsets:
-            new_content.append(struct.pack(entry_format, value // scale))
-        self.content = b''.join(new_content)
+        self.content = b''.join(
+            struct.pack(entry_format, value // scale)
+            for value in new_offsets)
 
 
 class _GlyfTable(_Table):
@@ -250,8 +258,29 @@ class _GlyfTable(_Table):
         WE_HAVE_AN_X_AND_Y_SCALE = 1 << 6
         WE_HAVE_A_TWO_BY_TWO = 1 << 7
 
-        content = self.content
+        def calculate_skip(flags):
+            """
+            Calculates the number of bytes to skip to get to the next
+            component entry.
+            """
+            # Numbers can be in bytes or shorts, depending on
+            # flag bit
+            if flags & ARG_1_AND_2_ARE_WORDS:
+                base_size = 2
+            else:
+                base_size = 1
 
+            nbytes = 4 + base_size * 2
+            if flags & WE_HAVE_A_SCALE:
+                nbytes += base_size
+            elif flags & WE_HAVE_AN_X_AND_Y_SCALE:
+                nbytes += base_size * 2
+            elif flags & WE_HAVE_A_TWO_BY_TWO:
+                nbytes += base_size * 4
+
+            return nbytes
+
+        content = self.content
         all_glyphs = set()
         glyph_queue = glyphs[:]
 
@@ -276,22 +305,7 @@ class _GlyfTable(_Table):
                     if not flags & MORE_COMPONENTS:
                         break
 
-                    # Numbers can be in bytes or shorts, depending on
-                    # flag bit
-                    if flags & ARG_1_AND_2_ARE_WORDS:
-                        base_size = 2
-                    else:
-                        base_size = 1
-
-                    # This is just to calculate how many bytes to skip
-                    # over to find next component entry
-                    i += 4 + base_size * 2
-                    if flags & WE_HAVE_A_SCALE:
-                        i += base_size
-                    elif flags & WE_HAVE_AN_X_AND_Y_SCALE:
-                        i += base_size * 2
-                    elif flags & WE_HAVE_A_TWO_BY_TWO:
-                        i += base_size * 4
+                    i += calculate_skip(flags)
 
         all_glyphs = list(all_glyphs)
         all_glyphs.sort()
@@ -307,19 +321,15 @@ class _GlyfTable(_Table):
 
 class _PostTable(_Table):
     post_table_struct = _BinaryStruct([
-        ('format', 'I'),
-        ('unused', '28s')])
+        ('format', 'I')])
 
     def __init__(self, header, content):
         super(_PostTable, self).__init__(header, content)
 
-        with open('content.bin', 'wb') as fd:
-            fd.write(content)
-
-        self.__dict__.update(self.post_table_struct.unpack(content[:32]))
+        self.__dict__.update(self.post_table_struct.unpack(content[:4]))
 
     def _subset_format2(self, glyphs):
-        n_basic_names = 258
+        N_BASIC_NAMES = 258
 
         content = self._content
         i = 32
@@ -357,15 +367,16 @@ class _PostTable(_Table):
         for i in range(numglyphs):
             val = new_glyph_index.get(i, 0)
             new_content.append(struct.pack('>H', val))
+
         for name in names:
             new_content.append(struct.pack('>B', len(name)))
             new_content.append(name)
 
-        self._content = b''.join(new_content)
+        return b''.join(new_content)
 
     def subset(self, glyphs):
-        if self.format == 0x20000:
-            self._subset_format2(glyphs)
+        if self.format == 0x20000 and False:
+            self.content = self._subset_format2(glyphs)
 
 
 SPECIAL_TABLES = {
@@ -447,6 +458,8 @@ class _FontFile(object):
             self[b'post'].subset(glyphs)
 
     def write(self, fd):
+        self._header['numTables'] = len(self._tables)
+
         self.header_struct.write(fd, self._header)
 
         offset = (self.header_struct.size +
