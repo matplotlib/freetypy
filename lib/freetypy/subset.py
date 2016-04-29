@@ -349,7 +349,7 @@ class _PostTable(_Table):
                       name_index < numglyphs - N_BASIC_NAMES):
                     needed_indices[name_index - N_BASIC_NAMES] = gind
 
-        names = []
+        names = [b'.removed']
         name_index = 0
         i += 2 * numglyphs
         while i < len(content):
@@ -364,8 +364,8 @@ class _PostTable(_Table):
             name_index += 1
 
         new_content = [content[0:36]]
-        for i in range(numglyphs):
-            val = new_glyph_index.get(i, 0)
+        for i in range(1, numglyphs):
+            val = new_glyph_index.get(i, N_BASIC_NAMES)
             new_content.append(struct.pack('>H', val))
 
         for name in names:
@@ -379,8 +379,64 @@ class _PostTable(_Table):
             self.content = self._subset_format2(glyphs)
 
 
+class _HheaTable(_Table):
+    hhea_table_struct = _BinaryStruct([
+        ('version', 'I'),
+        ('ascent', 'h'),
+        ('descent', 'h'),
+        ('lineGap', 'h'),
+        ('advanceWidthMax', 'H'),
+        ('minLeftSideBearing', 'h'),
+        ('minRightSideBearing', 'h'),
+        ('xMaxExtent', 'h'),
+        ('caretSlopeRise', 'h'),
+        ('caretSlopeRun', 'h'),
+        ('caretOffset', 'h'),
+        ('res0', 'h'),
+        ('res1', 'h'),
+        ('res2', 'h'),
+        ('res3', 'h'),
+        ('metricDataFormat', 'h'),
+        ('numOfLongHorMetrics', 'H')])
+
+    def __init__(self, header, content):
+        super(_HheaTable, self).__init__(header, content)
+
+        self.__dict__.update(self.hhea_table_struct.unpack(content))
+
+
+class _HmtxTable(_Table):
+    def subset(self, glyph_set, offsets, hhea):
+        # In keeping with not changing glyph ids, we can't actually
+        # remove entries here.  However, we can set unused entries to
+        # 0 which should aid in compression.
+
+        n_glyphs = len(offsets) - 1
+        n_long_hor_metrics = hhea.numOfLongHorMetrics
+        content = self.content
+
+        h_metrics = content[:n_long_hor_metrics*4]
+        new_values = []
+        for i in range(n_long_hor_metrics):
+            if i in glyph_set:
+                new_values.append(h_metrics[i*4:i*4+4])
+            else:
+                new_values.append(b'\0\0\0\0')
+
+        left_side_bearing = content[n_long_hor_metrics*4:]
+        for i in range(n_glyphs - n_long_hor_metrics):
+            if i + n_long_hor_metrics in glyph_set:
+                new_values.append(left_side_bearing[i*2:i*2+2])
+            else:
+                new_values.append(b'\0\0')
+
+        self.content = b''.join(new_values)
+
+
 SPECIAL_TABLES = {
     b'head': _HeadTable,
+    b'hhea': _HheaTable,
+    b'hmtx': _HmtxTable,
     b'loca': _LocaTable,
     b'glyf': _GlyfTable,
     b'post': _PostTable
@@ -452,10 +508,14 @@ class _FontFile(object):
         # glyphs
         glyphs = self[b'glyf'].find_all_glyphs(glyphs, offsets)
 
+        glyph_set = set(glyphs)
+
         self[b'glyf'].subset(glyphs, offsets)
         self[b'loca'].subset(self, glyphs, offsets)
         if b'post' in self._tables:
             self[b'post'].subset(glyphs)
+        if b'hmtx' in self._tables and b'hhea' in self._tables:
+            self[b'hmtx'].subset(glyph_set, offsets, self[b'hhea'])
 
     def write(self, fd):
         self._header['numTables'] = len(self._tables)
