@@ -343,11 +343,11 @@ class _PostTable(_Table):
             if gind < numglyphs:
                 offset = i + 2 * gind
                 name_index, = struct.unpack('>H', content[offset:offset+2])
-                if name_index < n_basic_names:
+                if name_index < N_BASIC_NAMES:
                     new_glyph_index[gind] = name_index
-                elif (name_index >= n_basic_names and
-                      name_index < numglyphs - n_basic_names):
-                    needed_indices[name_index - n_basic_names] = gind
+                elif (name_index >= N_BASIC_NAMES and
+                      name_index < numglyphs - N_BASIC_NAMES):
+                    needed_indices[name_index - N_BASIC_NAMES] = gind
 
         names = []
         name_index = 0
@@ -358,7 +358,7 @@ class _PostTable(_Table):
             if name_index in needed_indices:
                 name = content[i:i+name_length]
                 new_glyph_index[needed_indices[name_index]] = (
-                    len(names) + n_basic_names)
+                    len(names) + N_BASIC_NAMES)
                 names.append(name)
             i += name_length
             name_index += 1
@@ -375,7 +375,7 @@ class _PostTable(_Table):
         return b''.join(new_content)
 
     def subset(self, glyphs):
-        if self.format == 0x20000 and False:
+        if self.format == 0x20000:
             self.content = self._subset_format2(glyphs)
 
 
