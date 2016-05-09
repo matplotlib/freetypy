@@ -53,9 +53,9 @@ OpenType fonts.
 
 .. autosummary::
    :toctree: _generated
-   :template: autosummary/module.rst
+   :template: autosummary/base.rst
 
-   subset
+   subset.subset_font
 
 Glyph
 -----
@@ -122,6 +122,7 @@ TrueType information
    TT_Postscript
    TT_PLATFORM
    TT_APPLE_ID
+   TT_ISO_ID
    TT_MAC_ID
    TT_MAC_LANGID
    TT_MS_ID
