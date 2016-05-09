@@ -307,8 +307,6 @@ class _GlyfTable(_Table):
 
                     i += calculate_skip(flags)
 
-        all_glyphs = list(all_glyphs)
-        all_glyphs.sort()
         return all_glyphs
 
     def subset(self, glyphs, offsets):
@@ -647,9 +645,10 @@ class _FontFile(object):
         offsets = self[b'loca'].get_offsets(self)
         # Find all glyphs used, including components of compound
         # glyphs
-        glyphs = self[b'glyf'].find_all_glyphs(glyphs, offsets)
+        glyph_set = self[b'glyf'].find_all_glyphs(glyphs, offsets)
 
-        glyph_set = set(glyphs)
+        glyphs = list(glyph_set)
+        glyphs.sort()
 
         self[b'glyf'].subset(glyphs, offsets)
         self[b'loca'].subset(self, glyphs, offsets)
