@@ -54,7 +54,7 @@ from collections import OrderedDict
 import struct
 
 
-from freetypy import Face
+from freetypy import Face, TT_PLATFORM, TT_ISO_ID, TT_MS_ID
 
 
 UNDERSTOOD_VERSIONS = (0x00010000, 0x4f54544f)
@@ -307,8 +307,6 @@ class _GlyfTable(_Table):
 
                     i += calculate_skip(flags)
 
-        all_glyphs = list(all_glyphs)
-        all_glyphs.sort()
         return all_glyphs
 
     def subset(self, glyphs, offsets):
@@ -349,7 +347,7 @@ class _PostTable(_Table):
                       name_index < numglyphs - N_BASIC_NAMES):
                     needed_indices[name_index - N_BASIC_NAMES] = gind
 
-        names = []
+        names = [b'.removed']
         name_index = 0
         i += 2 * numglyphs
         while i < len(content):
@@ -364,8 +362,8 @@ class _PostTable(_Table):
             name_index += 1
 
         new_content = [content[0:36]]
-        for i in range(numglyphs):
-            val = new_glyph_index.get(i, 0)
+        for i in range(1, numglyphs):
+            val = new_glyph_index.get(i, N_BASIC_NAMES)
             new_content.append(struct.pack('>H', val))
 
         for name in names:
@@ -379,8 +377,205 @@ class _PostTable(_Table):
             self.content = self._subset_format2(glyphs)
 
 
+class _HheaTable(_Table):
+    hhea_table_struct = _BinaryStruct([
+        ('version', 'I'),
+        ('ascent', 'h'),
+        ('descent', 'h'),
+        ('lineGap', 'h'),
+        ('advanceWidthMax', 'H'),
+        ('minLeftSideBearing', 'h'),
+        ('minRightSideBearing', 'h'),
+        ('xMaxExtent', 'h'),
+        ('caretSlopeRise', 'h'),
+        ('caretSlopeRun', 'h'),
+        ('caretOffset', 'h'),
+        ('res0', 'h'),
+        ('res1', 'h'),
+        ('res2', 'h'),
+        ('res3', 'h'),
+        ('metricDataFormat', 'h'),
+        ('numOfLongHorMetrics', 'H')])
+
+    def __init__(self, header, content):
+        super(_HheaTable, self).__init__(header, content)
+
+        self.__dict__.update(self.hhea_table_struct.unpack(content))
+
+
+class _HmtxTable(_Table):
+    def subset(self, glyph_set, offsets, hhea):
+        # In keeping with not changing glyph ids, we can't actually
+        # remove entries here.  However, we can set unused entries to
+        # 0 which should aid in compression.
+
+        n_glyphs = len(offsets) - 1
+        n_long_hor_metrics = hhea.numOfLongHorMetrics
+        content = self.content
+
+        h_metrics = content[:n_long_hor_metrics*4]
+        new_values = []
+        for i in range(n_long_hor_metrics):
+            if i in glyph_set:
+                new_values.append(h_metrics[i*4:i*4+4])
+            else:
+                new_values.append(b'\0\0\0\0')
+
+        left_side_bearing = content[n_long_hor_metrics*4:]
+        for i in range(n_glyphs - n_long_hor_metrics):
+            if i + n_long_hor_metrics in glyph_set:
+                new_values.append(left_side_bearing[i*2:i*2+2])
+            else:
+                new_values.append(b'\0\0')
+
+        self.content = b''.join(new_values)
+
+
+class _CmapTable(_Table):
+    cmap_table_struct = _BinaryStruct([
+        ('version', 'H'),
+        ('numTables', 'H')])
+
+    cmap_subtable_struct = _BinaryStruct([
+        ('platformID', 'H'),
+        ('encodingID', 'H'),
+        ('offset', 'I')])
+
+    class _CmapSubtable(object):
+        format_12_struct = _BinaryStruct([
+            ('format', 'H'),
+            ('unused', 'H'),
+            ('length', 'I'),
+            ('language', 'I'),
+            ('n_groups', 'I')])
+
+        def __init__(self, content, offset, glyphs):
+            self.offset = offset
+
+            format, = struct.unpack('>H', content[offset:offset+2])
+            if format in (0, 2, 4, 6):
+                self.length, = struct.unpack(
+                    '>H', content[offset+2:offset+4])
+            elif format in (8, 10, 12, 13, 14):
+                self.length, = struct.unpack(
+                    '>I', content[offset+4:offset+8])
+            else:
+                raise ValueError("Unknown cmap table type")
+
+            self.format = format
+            self.content = content[self.offset:self.offset+self.length]
+
+            if format == 12:
+                self._subset_format12(glyphs)
+
+        def _subset_format12(self, glyph_set):
+            content = self.content
+            header = self.format_12_struct.unpack(content[:16])
+            chars = []
+            for i in range(header['n_groups']):
+                start_char, end_char, start_glyph = struct.unpack(
+                    '>III', content[16+(i*12):28+(i*12)])
+
+                for ccode in range(start_char, end_char + 1):
+                    gind = start_glyph + (ccode - start_char)
+                    if gind in glyph_set:
+                        chars.append((ccode, gind))
+
+            if len(chars) < 2:
+                return
+
+            new_groups = [[chars[0][0], chars[0][0], chars[0][1]]]
+            last_ccode = chars[0][0]
+            last_gind = chars[0][1]
+
+            for ccode, gind in chars[1:]:
+                if gind - ccode == last_gind - last_ccode:
+                    new_groups[-1][1] = ccode
+                else:
+                    new_groups.append([ccode, ccode, gind])
+                last_ccode = ccode
+                last_gind = gind
+
+            new_content = [
+                self.format_12_struct.pack(
+                    format=12, unused=0, length=16 + 12 * len(new_groups),
+                    language=header['language'], n_groups=len(new_groups))]
+
+            for start, end, gind in new_groups:
+                new_content.append(struct.pack('>III', start, end, gind))
+
+            self.content = b''.join(new_content)
+            self.length = len(self.content)
+
+    def is_unicode_table(self, header):
+        if header['platformID'] == TT_PLATFORM.APPLE_UNICODE:
+            return True
+        elif (header['platformID'] == TT_PLATFORM.ISO and
+              header['encodingID'] == TT_ISO_ID.ISO_10646):
+            return True
+        elif (header['platformID'] == TT_PLATFORM.MICROSOFT and
+              header['encodingID'] in (TT_MS_ID.UNICODE_CS, TT_MS_ID.UCS_4)):
+            return True
+        return False
+
+    def subset(self, glyph_set):
+        # This removes all but the master unicode table.  We could
+        # probably do more by shrinking that table, but this is good
+        # as a first pass
+        content = self.content
+
+        header = self.cmap_table_struct.unpack(content[:4])
+
+        i = 4
+        tables = {}
+        entries = []
+        for table_num in range(header['numTables']):
+            subheader = self.cmap_subtable_struct.unpack(content[i:i+8])
+            if self.is_unicode_table(subheader):
+                if subheader['offset'] in tables:
+                    table = tables[subheader['offset']]
+                else:
+                    try:
+                        table = self._CmapSubtable(content, subheader['offset'], glyph_set)
+                    except ValueError:
+                        # If unknown cmap table types, just abort on subsetting
+                        return
+                    tables[subheader['offset']] = table
+                entries.append((subheader, table))
+            i += 8
+
+        # If we don't have a Unicode table, just leave everything intact
+        if len(entries) == 0:
+            return
+
+        tables = list(tables.values())
+        offset = 4 + len(entries) * 8
+        for table in tables:
+            table.offset = offset
+            offset += table.length
+
+        new_content = [
+            self.cmap_table_struct.pack(
+                version=header['version'],
+                numTables=len(entries))]
+
+        for subheader, table in entries:
+            new_content.append(self.cmap_subtable_struct.pack(
+                platformID=subheader['platformID'],
+                encodingID=subheader['encodingID'],
+                offset=table.offset))
+
+        for table in tables:
+            new_content.append(table.content)
+
+        self.content = b''.join(new_content)
+
+
 SPECIAL_TABLES = {
+    b'cmap': _CmapTable,
     b'head': _HeadTable,
+    b'hhea': _HheaTable,
+    b'hmtx': _HmtxTable,
     b'loca': _LocaTable,
     b'glyf': _GlyfTable,
     b'post': _PostTable
@@ -450,12 +645,19 @@ class _FontFile(object):
         offsets = self[b'loca'].get_offsets(self)
         # Find all glyphs used, including components of compound
         # glyphs
-        glyphs = self[b'glyf'].find_all_glyphs(glyphs, offsets)
+        glyph_set = self[b'glyf'].find_all_glyphs(glyphs, offsets)
+
+        glyphs = list(glyph_set)
+        glyphs.sort()
 
         self[b'glyf'].subset(glyphs, offsets)
         self[b'loca'].subset(self, glyphs, offsets)
         if b'post' in self._tables:
             self[b'post'].subset(glyphs)
+        if b'hmtx' in self._tables and b'hhea' in self._tables:
+            self[b'hmtx'].subset(glyph_set, offsets, self[b'hhea'])
+        if b'cmap' in self._tables:
+            self[b'cmap'].subset(glyph_set)
 
     def write(self, fd):
         self._header['numTables'] = len(self._tables)
