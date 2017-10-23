@@ -57,7 +57,7 @@ FT_Error ftpy_calculate_simple_layout(
         goto exit;
     }
 
-    layout->xys = calloc(sizeof(FT_Vector), text_length);
+    layout->xys = calloc(sizeof(ftpy_Layout_Vector), text_length);
     if (layout->xys == NULL) {
         goto exit;
     }
